@@ -4,9 +4,9 @@ import { siteConfig } from 'app/config/site'
 
 export default function Page() {
   return (
-    <section className="space-y-6">
-      <header className="atlas-panel grid gap-4 p-6 sm:grid-cols-[1.3fr_0.7fr]">
-        <div>
+    <section className="atlas-stack">
+      <section className="atlas-grid-stack grid sm:grid-cols-[1.3fr_0.7fr]">
+        <header className="atlas-panel p-6">
           <p className="atlas-label">Profile</p>
           <h1 className="mt-2 text-4xl font-semibold uppercase tracking-[0.06em] text-[var(--atlas-accent)] sm:text-5xl">
             {siteConfig.name}
@@ -20,8 +20,8 @@ export default function Page() {
           <p className="mt-2 text-sm text-[var(--atlas-muted)]">
             {siteConfig.introCn}
           </p>
-        </div>
-        <div className="border border-[var(--atlas-border)] p-4 text-sm text-[var(--atlas-text)]">
+        </header>
+        <aside className="atlas-panel p-6 text-sm text-[var(--atlas-text)]">
           <p className="atlas-label">Meta</p>
           <p className="mt-3">Location: {siteConfig.location}</p>
           <p className="mt-2">Email: {siteConfig.email}</p>
@@ -43,12 +43,12 @@ export default function Page() {
               LinkedIn
             </a>
           </div>
-        </div>
-      </header>
+        </aside>
+      </section>
 
       <section className="atlas-panel p-6">
         <p className="atlas-label">Tech Stack</p>
-        <div className="mt-4 grid gap-4 md:grid-cols-3">
+        <div className="atlas-grid-stack mt-4 grid md:grid-cols-3">
           {siteConfig.stackGroups.map((group) => (
             <article
               key={group.title}
@@ -67,7 +67,7 @@ export default function Page() {
         </div>
       </section>
 
-      <section className="grid gap-4 md:grid-cols-2">
+      <section className="grid md:grid-cols-2">
         <article className="atlas-panel p-6">
           <p className="atlas-label">Notes</p>
           <ul className="mt-4 space-y-3 text-sm leading-7 text-[var(--atlas-text)]">

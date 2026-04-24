@@ -10,15 +10,22 @@ const navItems = [
 export function Navbar() {
   return (
     <header className="atlas-panel atlas-nav overflow-hidden">
-      <div className="grid grid-cols-2 border-b border-[var(--atlas-border)] md:grid-cols-6">
-        <div className="atlas-slot col-span-2 border-r border-[var(--atlas-border)] px-3 py-3 md:col-span-2">
+      <div className="grid grid-cols-2 md:grid-cols-6">
+        <div className="atlas-slot col-span-2 border-b border-[var(--atlas-border)] px-3 py-3 md:col-span-2 md:border-r md:border-b-0">
           <p className="font-mono text-xl tracking-tight text-[var(--atlas-accent)]">
             SIMON LUO
           </p>
         </div>
-        {navItems.map((item) => {
-          const className =
-            'atlas-slot border-r border-[var(--atlas-border)] px-3 py-3 text-xs uppercase tracking-[0.16em] text-[var(--atlas-muted)] transition hover:text-[var(--atlas-accent)]'
+        {navItems.map((item, index) => {
+          const className = [
+            'atlas-slot px-3 py-3 text-xs uppercase tracking-[0.16em] text-[var(--atlas-muted)] transition hover:text-[var(--atlas-accent)]',
+            index % 2 === 0 ? 'border-r border-[var(--atlas-border)]' : '',
+            index >= 2 ? 'border-t border-[var(--atlas-border)]' : '',
+            index < navItems.length - 1 ? 'md:border-r md:border-[var(--atlas-border)]' : '',
+            'md:border-t-0',
+          ]
+            .filter(Boolean)
+            .join(' ')
 
           if (item.external) {
             return (

@@ -35,7 +35,7 @@ export function ProjectList() {
   const projects = getProjects()
 
   return (
-    <div className="space-y-4">
+    <div className="atlas-stack">
       {projects.map((project) => (
         <ProjectArchiveRow key={project.slug} project={project} />
       ))}
@@ -57,7 +57,7 @@ export function FeaturedProjects() {
   }
 
   return (
-    <div className="space-y-3">
+    <div className="atlas-stack">
       {projects.map((project) => (
         <ProjectArchiveRow key={project.slug} project={project} />
       ))}

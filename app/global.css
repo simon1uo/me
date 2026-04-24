@@ -74,6 +74,24 @@ body {
   backdrop-filter: blur(3px);
 }
 
+.atlas-stack {
+  display: flex;
+  flex-direction: column;
+}
+
+.atlas-stack > * + * {
+  margin-top: -1px;
+}
+
+.atlas-grid-stack {
+  gap: 0;
+}
+
+.atlas-grid-stack > * {
+  margin-top: -1px;
+  margin-left: -1px;
+}
+
 .atlas-label {
   color: var(--atlas-accent);
   letter-spacing: 0.18em;

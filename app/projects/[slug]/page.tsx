@@ -69,7 +69,7 @@ export default async function ProjectPage({ params }: { params: Params }) {
     : []
 
   return (
-    <section className="space-y-4">
+    <section className="atlas-stack">
       <script
         type="application/ld+json"
         suppressHydrationWarning

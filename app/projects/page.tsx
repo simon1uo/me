@@ -7,7 +7,7 @@ export const metadata = {
 
 export default function ProjectsPage() {
   return (
-    <section className="space-y-4">
+    <section className="atlas-stack">
       <header className="atlas-panel p-6">
         <p className="atlas-label">Project Archive</p>
         <h1 className="mt-2 text-3xl uppercase tracking-[0.08em] text-[var(--atlas-accent)]">

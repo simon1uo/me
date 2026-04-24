@@ -54,10 +54,12 @@ export default function RootLayout({
     >
       <body className="antialiased">
         <div className="atlas-bg" aria-hidden="true" />
-        <main className="mx-auto flex min-h-screen w-full max-w-6xl flex-col px-4 pb-12 pt-6 sm:px-6 lg:px-10">
-          <Navbar />
-          <div className="atlas-reveal mt-6 flex-auto">{children}</div>
-          <Footer />
+        <main className="mx-auto flex min-h-screen w-full max-w-6xl flex-col px-4 py-6 sm:px-6 lg:px-10">
+          <div className="atlas-stack flex-auto">
+            <Navbar />
+            <div className="atlas-reveal flex-auto">{children}</div>
+            <Footer />
+          </div>
           <Analytics />
           <SpeedInsights />
         </main>
