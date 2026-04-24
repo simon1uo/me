@@ -22,6 +22,26 @@ Typical workflow:
 1. `npm run lint`
 2. `npm run build` 
 
+## Style Change Workflow
+For style-only updates (Tailwind/class tweaks, spacing, color, typography), use this workflow:
+1. Start local app: `npm run dev`
+2. Capture baseline for key routes with Playwright CLI:
+   - `playwright-cli open http://127.0.0.1:3000`
+   - `playwright-cli snapshot --filename=.playwright-cli/before-home.yml`
+   - `playwright-cli goto http://127.0.0.1:3000/projects`
+   - `playwright-cli snapshot --filename=.playwright-cli/before-projects.yml`
+3. Apply style changes.
+4. Verify desktop and mobile layouts after changes:
+   - Desktop: `playwright-cli resize 1440 900`
+   - Mobile: `playwright-cli resize 390 844`
+   - Re-capture snapshots on changed routes (`after-*.yml`) and compare with baseline.
+5. Collect PR evidence for UI-visible updates:
+   - `playwright-cli screenshot --filename=.playwright-cli/after-home.png`
+6. Close browser session: `playwright-cli close`
+7. Run quality gates before commit:
+   - `npm run lint`
+   - `npm run build`
+
 ## Coding Style & Naming Conventions
 - Language: TypeScript + React function components.
 - Indentation: 2 spaces, semicolon-free style (follow existing files).
