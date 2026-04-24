@@ -1,0 +1,240 @@
+@import 'tailwindcss';
+
+::selection {
+  background-color: #47a3f3;
+  color: #fefefe;
+}
+
+:root {
+  --background: #f8fafc;
+  --foreground: #0f172a;
+  --atlas-bg: #f3f7ff;
+  --atlas-surface: rgba(250, 253, 255, 0.78);
+  --atlas-surface-strong: rgba(246, 251, 255, 0.9);
+  --atlas-text: #16233d;
+  --atlas-muted: #5f7191;
+  --atlas-accent: #2463ff;
+  --atlas-border: rgba(124, 156, 220, 0.32);
+  --atlas-grid: rgba(137, 168, 234, 0.14);
+  --sh-class: #2d5e9d;
+  --sh-identifier: #354150;
+  --sh-sign: #8996a3;
+  --sh-string: #007f7a;
+  --sh-keyword: #e02518;
+  --sh-comment: #a19595;
+  --sh-jsxliterals: #6266d1;
+  --sh-property: #e25a1c;
+  --sh-entity: #e25a1c;
+}
+
+html {
+  min-width: 360px;
+  background-color: var(--atlas-bg);
+  color: var(--atlas-text);
+}
+
+body {
+  min-height: 100vh;
+}
+
+.atlas-bg {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: -1;
+  background:
+    radial-gradient(70rem 40rem at 20% 12%, rgba(83, 130, 255, 0.12), transparent 58%),
+    radial-gradient(56rem 36rem at 82% 18%, rgba(171, 204, 255, 0.24), transparent 62%),
+    linear-gradient(180deg, #f8fbff 0%, #f3f7ff 56%, #eff4ff 100%);
+}
+
+.atlas-bg::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(to right, var(--atlas-grid) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--atlas-grid) 1px, transparent 1px);
+  background-size: 56px 56px;
+  opacity: 0.45;
+}
+
+.atlas-bg::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(rgba(80, 122, 220, 0.12) 0.6px, transparent 0.6px);
+  background-size: 4px 4px;
+  opacity: 0.12;
+}
+
+.atlas-panel {
+  border: 1px solid var(--atlas-border);
+  background: var(--atlas-surface);
+  backdrop-filter: blur(3px);
+}
+
+.atlas-label {
+  color: var(--atlas-accent);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  font-size: 0.72rem;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .atlas-reveal {
+    animation: atlas-fade 380ms ease-out both;
+  }
+
+  @keyframes atlas-fade {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+}
+
+.prose .anchor {
+  @apply absolute invisible no-underline;
+
+  margin-left: -1em;
+  padding-right: 0.5em;
+  width: 80%;
+  max-width: 700px;
+  cursor: pointer;
+}
+
+.anchor:hover {
+  @apply visible;
+}
+
+.prose a {
+  @apply underline transition-all decoration-neutral-400 underline-offset-2 decoration-[0.1em];
+}
+
+.prose .anchor:after {
+  @apply text-neutral-300;
+  content: '#';
+}
+
+.prose *:hover > .anchor {
+  @apply visible;
+}
+
+.prose pre {
+  @apply bg-neutral-50 rounded-lg overflow-x-auto border border-neutral-200 py-2 px-3 text-sm;
+}
+
+.prose code {
+  @apply px-1 py-0.5 rounded-lg;
+}
+
+.prose pre code {
+  @apply p-0;
+  border: initial;
+  line-height: 1.5;
+}
+
+.prose code span {
+  @apply font-medium;
+}
+
+.prose img {
+  /* Don't apply styles to next/image */
+  @apply m-0;
+}
+
+.prose p {
+  @apply my-4 text-neutral-800;
+}
+
+.prose h1 {
+  @apply text-4xl font-medium tracking-tight mt-6 mb-2;
+}
+
+.prose h2 {
+  @apply text-xl font-medium tracking-tight mt-6 mb-2;
+}
+
+.prose h3 {
+  @apply text-xl font-medium tracking-tight mt-6 mb-2;
+}
+
+.prose h4 {
+  @apply text-lg font-medium tracking-tight mt-6 mb-2;
+}
+
+.prose strong {
+  @apply font-medium;
+}
+
+.prose ul {
+  @apply list-disc pl-6;
+}
+
+.prose ol {
+  @apply list-decimal pl-6;
+}
+
+.prose > :first-child {
+  /* Override removing top margin, causing layout shift */
+  margin-top: 1.25em !important;
+  margin-bottom: 1.25em !important;
+}
+
+pre::-webkit-scrollbar {
+  display: none;
+}
+
+pre {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}
+
+/* Remove Safari input shadow on mobile */
+input[type='text'],
+input[type='email'] {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+}
+
+table {
+  display: block;
+  max-width: fit-content;
+  overflow-x: auto;
+  white-space: nowrap;
+}
+
+.title {
+  text-wrap: balance;
+}
+
+.atlas-prose {
+  color: var(--atlas-text);
+  max-width: none;
+}
+
+.atlas-prose p,
+.atlas-prose li {
+  color: #213456;
+}
+
+.atlas-prose h1,
+.atlas-prose h2,
+.atlas-prose h3,
+.atlas-prose h4 {
+  color: var(--atlas-accent);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.atlas-prose pre {
+  border-color: var(--atlas-border);
+  background: rgba(244, 249, 255, 0.92);
+}

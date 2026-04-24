@@ -1,0 +1,30 @@
+{
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint ."
+  },
+  "dependencies": {
+    "@tailwindcss/postcss": "^4.1.4",
+    "@types/node": "^22.15.17",
+    "@types/react": "^19.2.2",
+    "@types/react-dom": "^19.2.2",
+    "@vercel/analytics": "^2.0.1",
+    "@vercel/speed-insights": "^2.0.0",
+    "geist": "^1.7.0",
+    "next": "^16.2.4",
+    "next-mdx-remote": "^6.0.0",
+    "postcss": "^8.5.3",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+    "sugar-high": "^1.1.0",
+    "tailwindcss": "^4.1.4",
+    "typescript": "^5"
+  },
+  "devDependencies": {
+    "eslint": "^9.25.1",
+    "eslint-config-next": "^16.2.4"
+  }
+}
