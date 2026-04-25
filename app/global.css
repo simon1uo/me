@@ -17,6 +17,23 @@
   --atlas-selection-bg: #47a3f3;
   --atlas-selection-text: #fefefe;
   --atlas-shadow: rgba(12, 23, 45, 0.12);
+  --atlas-terminal-panel: rgba(244, 249, 255, 0.92);
+  --atlas-terminal-text: color-mix(in srgb, var(--atlas-text) 96%, white 4%);
+  --atlas-terminal-muted: color-mix(in srgb, var(--atlas-muted) 94%, var(--atlas-text) 6%);
+  --atlas-terminal-accent-soft: var(--atlas-accent);
+  --atlas-terminal-success: color-mix(in srgb, #1f9d73 78%, var(--atlas-accent) 22%);
+  --atlas-terminal-warning: color-mix(in srgb, #b67a20 80%, var(--atlas-text) 20%);
+  --atlas-terminal-border: color-mix(in srgb, var(--atlas-border) 78%, var(--atlas-accent) 22%);
+  --atlas-terminal-shell-top: rgba(248, 252, 255, 0.94);
+  --atlas-terminal-shell-bottom: rgba(231, 240, 251, 0.92);
+  --atlas-terminal-window-top: rgba(250, 253, 255, 0.98);
+  --atlas-terminal-window-bottom: rgba(236, 244, 252, 0.96);
+  --atlas-terminal-noise: color-mix(in srgb, var(--atlas-accent) 9%, transparent);
+  --atlas-terminal-beam: color-mix(in srgb, var(--atlas-accent) 4%, transparent);
+  --atlas-terminal-scanline: color-mix(in srgb, var(--atlas-accent) 4%, transparent);
+  --atlas-terminal-led-glow: color-mix(in srgb, var(--atlas-accent) 14%, transparent);
+  --atlas-terminal-caret-glow: color-mix(in srgb, var(--atlas-accent) 26%, transparent);
+  --atlas-terminal-shadow: color-mix(in srgb, var(--atlas-shadow) 88%, transparent);
   --sh-class: #2d5e9d;
   --sh-identifier: #354150;
   --sh-sign: #8996a3;
@@ -43,6 +60,23 @@ html[data-theme='dark'] {
   --atlas-selection-bg: #8cb6ff;
   --atlas-selection-text: #07111f;
   --atlas-shadow: rgba(0, 0, 0, 0.42);
+  --atlas-terminal-panel: rgba(6, 16, 28, 0.84);
+  --atlas-terminal-text: color-mix(in srgb, var(--atlas-text) 96%, white 4%);
+  --atlas-terminal-muted: color-mix(in srgb, var(--atlas-muted) 92%, var(--atlas-text) 8%);
+  --atlas-terminal-accent-soft: var(--atlas-accent);
+  --atlas-terminal-success: color-mix(in srgb, #7ef7c4 72%, var(--atlas-accent) 28%);
+  --atlas-terminal-warning: color-mix(in srgb, #ffcf7a 76%, var(--atlas-accent) 24%);
+  --atlas-terminal-border: color-mix(in srgb, var(--atlas-border) 72%, var(--atlas-accent) 28%);
+  --atlas-terminal-shell-top: rgba(7, 14, 27, 0.92);
+  --atlas-terminal-shell-bottom: rgba(4, 9, 19, 0.98);
+  --atlas-terminal-window-top: rgba(9, 20, 36, 0.94);
+  --atlas-terminal-window-bottom: rgba(4, 10, 18, 0.98);
+  --atlas-terminal-noise: color-mix(in srgb, var(--atlas-accent) 10%, transparent);
+  --atlas-terminal-beam: color-mix(in srgb, var(--atlas-accent) 4%, transparent);
+  --atlas-terminal-scanline: color-mix(in srgb, var(--atlas-accent) 4%, transparent);
+  --atlas-terminal-led-glow: color-mix(in srgb, var(--atlas-accent) 20%, transparent);
+  --atlas-terminal-caret-glow: color-mix(in srgb, var(--atlas-accent) 42%, transparent);
+  --atlas-terminal-shadow: color-mix(in srgb, black 18%, transparent);
   --sh-class: #a8c9ff;
   --sh-identifier: #d7e4ff;
   --sh-sign: #8fa8d4;
@@ -176,6 +210,131 @@ select {
   box-shadow: 0 18px 60px var(--atlas-shadow);
 }
 
+.atlas-lab-shell {
+  background:
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--atlas-surface) 88%, transparent),
+      color-mix(in srgb, var(--atlas-surface-strong) 92%, transparent)
+    );
+  border-color: var(--atlas-border);
+  box-shadow:
+    0 20px 48px var(--atlas-terminal-shadow),
+    inset 0 1px 0 color-mix(in srgb, var(--atlas-text) 4%, transparent);
+  backdrop-filter: blur(20px);
+}
+
+.atlas-lab-noise,
+.atlas-lab-scanline {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.atlas-lab-noise {
+  background-image:
+    radial-gradient(var(--atlas-terminal-noise) 0.55px, transparent 0.7px),
+    linear-gradient(90deg, transparent 0%, var(--atlas-terminal-beam) 50%, transparent 100%);
+  background-size: 5px 5px, 100% 100%;
+  opacity: 0.2;
+}
+
+.atlas-lab-scanline {
+  background:
+    repeating-linear-gradient(
+      180deg,
+      var(--atlas-terminal-scanline) 0,
+      var(--atlas-terminal-scanline) 1px,
+      transparent 1px,
+      transparent 4px
+    );
+  mix-blend-mode: screen;
+  opacity: 0.45;
+}
+
+.atlas-lab-led {
+  display: inline-flex;
+  width: 0.6rem;
+  height: 0.6rem;
+  border-radius: 999px;
+  background: var(--atlas-terminal-accent-soft);
+  box-shadow: 0 0 10px var(--atlas-terminal-led-glow);
+}
+
+.atlas-lab-led-danger {
+  opacity: 0.9;
+}
+
+.atlas-lab-led-warn {
+  opacity: 0.58;
+}
+
+.atlas-lab-led-live {
+  opacity: 0.3;
+}
+
+.atlas-terminal-window {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--atlas-terminal-border);
+  min-height: 32rem;
+  background:
+    linear-gradient(180deg, var(--atlas-terminal-window-top), var(--atlas-terminal-window-bottom));
+  box-shadow: 0 10px 28px var(--atlas-terminal-shadow);
+}
+
+.atlas-terminal-line {
+  opacity: 0;
+  transform: translateY(4px);
+  animation: atlas-terminal-line-in 240ms ease-out forwards;
+}
+
+.atlas-terminal-viewport {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+}
+
+.atlas-terminal-caret {
+  display: inline-block;
+  width: 0.68ch;
+  height: 1.1em;
+  transform: translateY(0.14em);
+  background: var(--atlas-terminal-accent-soft);
+  box-shadow: 0 0 12px var(--atlas-terminal-caret-glow);
+  animation: atlas-terminal-caret-blink 1s steps(1) infinite;
+}
+
+.atlas-terminal-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.75rem;
+  padding: 0.7rem 1rem;
+  border: 1px solid color-mix(in srgb, var(--atlas-terminal-accent-soft) 34%, var(--atlas-terminal-border));
+  background: rgba(9, 18, 34, 0.8);
+  color: var(--atlas-terminal-text);
+  font-family: var(--font-geist-mono), ui-monospace, monospace;
+  font-size: 0.72rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  transition:
+    transform 180ms ease,
+    border-color 180ms ease,
+    background-color 180ms ease,
+    color 180ms ease;
+}
+
+.atlas-terminal-button:hover {
+  transform: translateY(-1px);
+  border-color: color-mix(in srgb, var(--atlas-terminal-accent-soft) 64%, white 8%);
+  background: rgba(12, 24, 43, 0.92);
+}
+
+.atlas-terminal-button-muted {
+  color: var(--atlas-terminal-muted);
+}
+
 .atlas-option {
   border: 1px solid var(--atlas-border);
   background: color-mix(in srgb, var(--atlas-surface-strong) 84%, transparent);
@@ -219,6 +378,65 @@ select {
       opacity: 1;
       transform: translateY(0);
     }
+  }
+
+  @keyframes atlas-terminal-caret-blink {
+    0%,
+    49% {
+      opacity: 1;
+    }
+
+    50%,
+    100% {
+      opacity: 0;
+    }
+  }
+
+  @keyframes atlas-terminal-line-in {
+    from {
+      opacity: 0;
+      transform: translateY(4px);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes atlas-lab-led-pulse {
+    0%,
+    100% {
+      transform: scale(1);
+      filter: brightness(1);
+    }
+
+    50% {
+      transform: scale(1.08);
+      filter: brightness(1.2);
+    }
+  }
+
+  .atlas-lab-led-live,
+  .atlas-lab-led-warn {
+    animation: atlas-lab-led-pulse 1.8s ease-in-out infinite;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .atlas-terminal-line,
+  .atlas-terminal-caret,
+  .atlas-lab-led-live,
+  .atlas-lab-led-warn {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (max-width: 640px) {
+  .atlas-terminal-window {
+    min-height: 28rem;
   }
 }
 
