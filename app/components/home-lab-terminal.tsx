@@ -1,11 +1,34 @@
 'use client'
 
 import { useEffect, useMemo, useState } from 'react'
+import type { LucideIcon } from 'lucide-react'
+import {
+  Bot,
+  Braces,
+  Code2,
+  Coffee,
+  Component,
+  Flame,
+  Layers,
+  Leaf,
+  MonitorCog,
+  Palette,
+  Rocket,
+  Server,
+  Sparkles,
+  Wrench,
+} from 'lucide-react'
 
 type TerminalLine = {
-  text: string
+  text?: string
+  segments?: TerminalSegment[]
   tone?: 'default' | 'accent' | 'muted' | 'success' | 'warning'
   prefix?: string
+}
+
+type TerminalSegment = {
+  text: string
+  icon?: LucideIcon
 }
 
 type TerminalScene = {
@@ -31,7 +54,8 @@ type HomeLabTerminalProps = {
   stackSnapshot: string[]
 }
 
-const sceneDurationMs = 6200
+const minSceneDurationMs = 10000
+const maxSceneDurationMs = 12000
 const typingStartDelayMs = 420
 const typingStepDelayMinMs = 28
 const typingStepDelayMaxMs = 88
@@ -43,6 +67,24 @@ const loadingPhaseMaxMs = 2000
 const spinnerFrameDelayMinMs = 170
 const spinnerFrameDelayMaxMs = 300
 const spinnerFrames = ['✶', '✸', '✹', '✺']
+
+const keywordIconMap: Array<{ key: string; icon: LucideIcon }> = [
+  { key: 'typescript', icon: Braces },
+  { key: 'javascript', icon: Code2 },
+  { key: 'react', icon: Component },
+  { key: 'vueuse', icon: Sparkles },
+  { key: 'vue', icon: Leaf },
+  { key: 'node.js', icon: Server },
+  { key: 'java', icon: Coffee },
+  { key: 'spring boot', icon: Flame },
+  { key: 'vite', icon: Rocket },
+  { key: 'tailwind css', icon: Palette },
+  { key: 'ai agent tooling', icon: Bot },
+  { key: 'tooling', icon: Wrench },
+  { key: 'workflow', icon: MonitorCog },
+]
+
+const fallbackKeywordIcon = Layers
 
 const loadingWordBank = [
   'Accomplishing',
@@ -243,6 +285,59 @@ function pickRandomWord(source: string[]) {
   return source[randomBetween(0, source.length - 1)]
 }
 
+function iconForKeyword(keyword: string) {
+  const normalizedKeyword = keyword.toLowerCase().trim()
+  const matched = keywordIconMap.find(({ key }) =>
+    normalizedKeyword.includes(key)
+  )
+
+  return matched?.icon || fallbackKeywordIcon
+}
+
+function buildKeywordSegments(items: string[]) {
+  return items.flatMap((item, index) => {
+    const entry: TerminalSegment[] = [
+      {
+        text: item,
+        icon: iconForKeyword(item),
+      },
+    ]
+
+    if (index < items.length - 1) {
+      entry.push({ text: ', ' })
+    }
+
+    return entry
+  })
+}
+
+function estimateSceneDuration(scene: TerminalScene) {
+  const commandChars = scene.command.length
+  const outputChars = scene.outputs.reduce(
+    (total, line) =>
+      total +
+      (line.text?.length || 0) +
+      (line.prefix?.length || 0) +
+      (line.segments?.reduce(
+        (segmentTotal, segment) => segmentTotal + segment.text.length,
+        0
+      ) || 0),
+    0
+  )
+  const outputLines = scene.outputs.length
+  const avgTypingDelay = (typingStepDelayMinMs + typingStepDelayMaxMs) / 2
+  const typingBudget = commandChars * avgTypingDelay
+  const loadingBudget =
+    submitPauseMs + (loadingPhaseMinMs + loadingPhaseMaxMs) / 2
+  const revealBudget = outputLines * (outputStepDelayMs + outputStepJitterMs / 2)
+  const readingBudget = outputChars * 10 + outputLines * 600
+
+  const rawDuration =
+    typingStartDelayMs + typingBudget + loadingBudget + revealBudget + readingBudget
+
+  return Math.max(minSceneDurationMs, Math.min(maxSceneDurationMs, rawDuration))
+}
+
 function typingDelayForChar(char: string) {
   if (char === ' ') {
     return randomBetween(typingStepDelayMinMs - 6, typingStepDelayMaxMs - 12)
@@ -322,15 +417,24 @@ function buildScenes({
       command: 'pnpm dlx envinfo --system --binaries --browsers',
       outputs: [
         {
-          text: `frontend => ${(frontendItems || []).join(', ')}`,
+          segments: [
+            { text: 'frontend => ' },
+            ...buildKeywordSegments(frontendItems || []),
+          ],
           tone: 'accent',
         },
         {
-          text: `backend  => ${(backendItems || []).join(', ')}`,
+          segments: [
+            { text: 'backend  => ' },
+            ...buildKeywordSegments(backendItems || []),
+          ],
           tone: 'default',
         },
         {
-          text: `ops      => ${(workflowItems || []).join(', ')}`,
+          segments: [
+            { text: 'ops      => ' },
+            ...buildKeywordSegments(workflowItems || []),
+          ],
           tone: 'muted',
         },
       ],
@@ -355,7 +459,7 @@ function buildScenes({
       )
         .slice(0, 3)
         .map((item) => ({
-          text: item,
+          segments: [{ text: item, icon: iconForKeyword(item) }],
           prefix: '- ',
           tone: 'default' as const,
         })),
@@ -395,6 +499,10 @@ export function HomeLabTerminal(props: HomeLabTerminalProps) {
   const [sceneIndex, setSceneIndex] = useState(0)
 
   const currentScene = scenes[sceneIndex]
+  const currentSceneDuration = useMemo(
+    () => estimateSceneDuration(currentScene),
+    [currentScene]
+  )
 
   useEffect(() => {
     if (prefersReducedMotion) {
@@ -403,12 +511,12 @@ export function HomeLabTerminal(props: HomeLabTerminalProps) {
 
     const timeoutId = window.setTimeout(() => {
       setSceneIndex((current) => (current + 1) % scenes.length)
-    }, sceneDurationMs)
+    }, currentSceneDuration)
 
     return () => {
       window.clearTimeout(timeoutId)
     }
-  }, [prefersReducedMotion, sceneIndex, scenes.length])
+  }, [currentSceneDuration, prefersReducedMotion, sceneIndex, scenes.length])
 
   return (
     <section className="atlas-lab-shell atlas-panel relative overflow-hidden">
@@ -566,13 +674,40 @@ function TerminalPlayback({
 
       {visibleOutputs.map((line, index) => (
         <p
-          key={`${scene.label}-${index}-${line.text}`}
+          key={`${scene.label}-${index}-${
+            line.text ||
+            line.segments?.map((segment) => segment.text).join('') ||
+            'line'
+          }`}
           className={`${lineToneClass(line.tone)} atlas-terminal-line`}
         >
           <span className="text-[var(--atlas-terminal-accent-soft)]">
             {line.prefix || ''}
           </span>
-          {line.text}
+          {line.segments?.length ? (
+            <span className="inline-flex flex-wrap items-center gap-x-1">
+              {line.segments.map((segment, segmentIndex) => {
+                const SegmentIcon = segment.icon
+                return (
+                  <span
+                    key={`${scene.label}-${index}-${segmentIndex}-${segment.text}`}
+                    className="inline-flex items-center gap-1"
+                  >
+                    {SegmentIcon ? (
+                      <SegmentIcon
+                        aria-hidden="true"
+                        className="h-3.5 w-3.5 text-[var(--atlas-terminal-accent-soft)]"
+                        strokeWidth={1.75}
+                      />
+                    ) : null}
+                    <span>{segment.text}</span>
+                  </span>
+                )
+              })}
+            </span>
+          ) : (
+            line.text
+          )}
         </p>
       ))}
     </div>
