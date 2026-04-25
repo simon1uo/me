@@ -131,6 +131,11 @@ select {
     box-shadow 180ms ease;
 }
 
+.atlas-nav {
+  background: color-mix(in srgb, var(--atlas-surface-strong) 88%, transparent);
+  box-shadow: 0 14px 34px color-mix(in srgb, var(--atlas-shadow) 52%, transparent);
+}
+
 .atlas-stack {
   display: flex;
   flex-direction: column;

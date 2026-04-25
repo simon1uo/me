@@ -144,7 +144,7 @@ export function Navbar() {
   }, [open])
 
   return (
-    <header className="atlas-panel atlas-nav relative z-40 overflow-visible">
+    <header className="atlas-panel atlas-nav sticky top-6 z-40 overflow-visible">
       <div className="grid grid-cols-2 md:grid-cols-6">
         <div className="atlas-slot col-span-2 border-b border-[var(--atlas-border)] px-3 py-3 md:col-span-2 md:border-r md:border-b-0">
           <p className="font-mono text-xl tracking-tight text-[var(--atlas-accent)]">
