@@ -19,7 +19,10 @@ type HomeLabTerminalProps = {
   name: string
   roleLine: string
   location: string
-  email: string
+  emails: {
+    primary: string
+    secondary?: string
+  }
   stackGroups: Array<{
     title: string
     items: string[]
@@ -30,9 +33,227 @@ type HomeLabTerminalProps = {
 
 const sceneDurationMs = 6200
 const typingStartDelayMs = 420
-const typingStepDelayMs = 58
+const typingStepDelayMinMs = 28
+const typingStepDelayMaxMs = 88
 const submitPauseMs = 420
 const outputStepDelayMs = 380
+const outputStepJitterMs = 150
+const loadingPhaseMinMs = 900
+const loadingPhaseMaxMs = 2000
+const spinnerFrameDelayMinMs = 170
+const spinnerFrameDelayMaxMs = 300
+const spinnerFrames = ['✶', '✸', '✹', '✺']
+
+const loadingWordBank = [
+  'Accomplishing',
+  'Actioning',
+  'Actualizing',
+  'Architecting',
+  'Baking',
+  'Beaming',
+  "Beboppin'",
+  'Befuddling',
+  'Billowing',
+  'Blanching',
+  'Bloviating',
+  'Boogieing',
+  'Boondoggling',
+  'Booping',
+  'Bootstrapping',
+  'Brewing',
+  'Burrowing',
+  'Calculating',
+  'Canoodling',
+  'Caramelizing',
+  'Cascading',
+  'Catapulting',
+  'Cerebrating',
+  'Channelling',
+  'Choreographing',
+  'Churning',
+  'Clauding',
+  'Coalescing',
+  'Cogitating',
+  'Combobulating',
+  'Composing',
+  'Computing',
+  'Concocting',
+  'Considering',
+  'Contemplating',
+  'Cooking',
+  'Crafting',
+  'Creating',
+  'Crystallizing',
+  'Cultivating',
+  'Crunching',
+  'Deciphering',
+  'Deliberating',
+  'Determining',
+  'Dilly-dallying',
+  'Discombobulating',
+  'Doing',
+  'Doodling',
+  'Drizzling',
+  'Ebbing',
+  'Effecting',
+  'Elucidating',
+  'Embellishing',
+  'Enchanting',
+  'Envisioning',
+  'Evaporating',
+  'Fermenting',
+  'Fiddle-faddling',
+  'Finagling',
+  'Flambéing',
+  'Flibbertigibbeting',
+  'Flowing',
+  'Flummoxing',
+  'Fluttering',
+  'Forging',
+  'Forming',
+  'Frosting',
+  'Frolicking',
+  'Gallivanting',
+  'Galloping',
+  'Garnishing',
+  'Generating',
+  'Germinating',
+  'Gitifying',
+  'Grooving',
+  'Gusting',
+  'Harmonizing',
+  'Hashing',
+  'Hatching',
+  'Herding',
+  'Hibernating',
+  'Honking',
+  'Hullaballooing',
+  'Hyperspacing',
+  'Ideating',
+  'Imagining',
+  'Improvising',
+  'Incubating',
+  'Inferring',
+  'Infusing',
+  'Ionizing',
+  'Jitterbugging',
+  'Julienning',
+  'Kneading',
+  'Leavening',
+  'Levitating',
+  'Lollygagging',
+  'Manifesting',
+  'Marinating',
+  'Meandering',
+  'Metamorphosing',
+  'Misting',
+  'Moonwalking',
+  'Moseying',
+  'Mulling',
+  'Mustering',
+  'Musing',
+  'Nebulizing',
+  'Nesting',
+  'Noodling',
+  'Nucleating',
+  'Orbiting',
+  'Orchestrating',
+  'Osmosing',
+  'Perambulating',
+  'Percolating',
+  'Perusing',
+  'Philosophising',
+  'Photosynthesizing',
+  'Pollinating',
+  'Pontificating',
+  'Pondering',
+  'Pouncing',
+  'Precipitating',
+  'Prestidigitating',
+  'Processing',
+  'Proofing',
+  'Propagating',
+  'Puttering',
+  'Puzzling',
+  'Quantumizing',
+  'Razzle-dazzling',
+  'Razzmatazzing',
+  'Recombobulating',
+  'Reticulating',
+  'Roosting',
+  'Ruminating',
+  'Sautéing',
+  'Scampering',
+  'Scheming',
+  'Schlepping',
+  'Scurrying',
+  'Seasoning',
+  'Shenaniganing',
+  'Shimmying',
+  'Simmering',
+  'Skedaddling',
+  'Sketching',
+  'Slithering',
+  'Smooshing',
+  'Sock-hopping',
+  'Spelunking',
+  'Spinning',
+  'Sprouting',
+  'Stewing',
+  'Sublimating',
+  'Sussing',
+  'Swirling',
+  'Swooping',
+  'Symbioting',
+  'Synthesizing',
+  'Tempering',
+  'Thinking',
+  'Thundering',
+  'Tinkering',
+  'Tomfoolering',
+  'Topsy-turvying',
+  'Transfiguring',
+  'Transmuting',
+  'Twisting',
+  'Undulating',
+  'Unfurling',
+  'Unravelling',
+  'Vibing',
+  'Waddling',
+  'Wandering',
+  'Warping',
+  'Whatchamacalliting',
+  'Whirlpooling',
+  'Whirring',
+  'Whisking',
+  'Wibbling',
+  'Working',
+  'Wrangling',
+  'Zesting',
+  'Zigzagging',
+]
+
+function randomBetween(min: number, max: number) {
+  const lower = Math.ceil(Math.min(min, max))
+  const upper = Math.floor(Math.max(min, max))
+  return Math.floor(Math.random() * (upper - lower + 1)) + lower
+}
+
+function pickRandomWord(source: string[]) {
+  return source[randomBetween(0, source.length - 1)]
+}
+
+function typingDelayForChar(char: string) {
+  if (char === ' ') {
+    return randomBetween(typingStepDelayMinMs - 6, typingStepDelayMaxMs - 12)
+  }
+
+  if (['/', '-', '.', '=', '&'].includes(char)) {
+    return randomBetween(typingStepDelayMinMs + 18, typingStepDelayMaxMs + 40)
+  }
+
+  return randomBetween(typingStepDelayMinMs, typingStepDelayMaxMs)
+}
 
 function useReducedMotionPreference() {
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(false)
@@ -56,7 +277,7 @@ function buildScenes({
   name,
   roleLine,
   location,
-  email,
+  emails,
   stackGroups,
   notes,
   stackSnapshot,
@@ -89,7 +310,10 @@ function buildScenes({
         { text: `name: ${name}`, tone: 'default' },
         { text: `role: ${roleLine}`, tone: 'default' },
         { text: `base: ${location}`, tone: 'muted' },
-        { text: `contact: ${email}`, tone: 'muted' },
+        { text: `contact: ${emails.primary}`, tone: 'muted' },
+        ...(emails.secondary
+          ? [{ text: `backup: ${emails.secondary}`, tone: 'muted' as const }]
+          : []),
       ],
       footer: 'profile::mounted',
     },
@@ -229,6 +453,8 @@ function TerminalPlayback({
 }) {
   const [typedLength, setTypedLength] = useState(0)
   const [showOutputs, setShowOutputs] = useState(0)
+  const [loadingWord, setLoadingWord] = useState('')
+  const [spinnerFrameIndex, setSpinnerFrameIndex] = useState(0)
 
   const visibleCommand = prefersReducedMotion
     ? scene.command
@@ -236,42 +462,84 @@ function TerminalPlayback({
   const visibleOutputs = prefersReducedMotion
     ? scene.outputs
     : scene.outputs.slice(0, showOutputs)
+  const shouldShowLoading = Boolean(loadingWord)
+  const spinnerGlyph = spinnerFrames[spinnerFrameIndex % spinnerFrames.length]
 
   useEffect(() => {
     if (prefersReducedMotion) {
       return
     }
 
-    let timeoutId: number
+    let cancelled = false
+    const timeoutIds: number[] = []
 
-    const typeCommand = () => {
-      setTypedLength((current) => {
-        if (current < scene.command.length) {
-          timeoutId = window.setTimeout(typeCommand, typingStepDelayMs)
-          return current + 1
+    const schedule = (callback: () => void, delay: number) => {
+      const timeoutId = window.setTimeout(() => {
+        if (!cancelled) {
+          callback()
         }
+      }, delay)
 
-        timeoutId = window.setTimeout(() => {
-          revealOutputs(0)
-        }, submitPauseMs)
-
-        return current
-      })
+      timeoutIds.push(timeoutId)
     }
 
     const revealOutputs = (index: number) => {
       if (index >= scene.outputs.length) {
+        setLoadingWord('')
         return
       }
 
       setShowOutputs(index + 1)
-      timeoutId = window.setTimeout(() => revealOutputs(index + 1), outputStepDelayMs)
+      schedule(
+        () => revealOutputs(index + 1),
+        outputStepDelayMs + randomBetween(0, outputStepJitterMs)
+      )
     }
 
-    timeoutId = window.setTimeout(typeCommand, typingStartDelayMs)
+    const runLoadingPhase = () => {
+      const phaseDuration = randomBetween(loadingPhaseMinMs, loadingPhaseMaxMs)
+      const phaseStartedAt = Date.now()
+      const selectedWord = pickRandomWord(loadingWordBank)
+
+      setLoadingWord(selectedWord)
+      setSpinnerFrameIndex(0)
+
+      const spin = () => {
+        const elapsed = Date.now() - phaseStartedAt
+        if (elapsed >= phaseDuration) {
+          setLoadingWord('')
+          revealOutputs(0)
+          return
+        }
+
+        setSpinnerFrameIndex((current) => (current + 1) % spinnerFrames.length)
+        schedule(
+          spin,
+          randomBetween(spinnerFrameDelayMinMs, spinnerFrameDelayMaxMs)
+        )
+      }
+
+      schedule(spin, randomBetween(spinnerFrameDelayMinMs, spinnerFrameDelayMaxMs))
+    }
+
+    const typeCommand = (index: number) => {
+      if (index >= scene.command.length) {
+        schedule(runLoadingPhase, submitPauseMs)
+        return
+      }
+
+      setTypedLength(index + 1)
+      schedule(
+        () => typeCommand(index + 1),
+        typingDelayForChar(scene.command[index])
+      )
+    }
+
+    schedule(() => typeCommand(0), typingStartDelayMs)
 
     return () => {
-      window.clearTimeout(timeoutId)
+      cancelled = true
+      timeoutIds.forEach((timeoutId) => window.clearTimeout(timeoutId))
     }
   }, [prefersReducedMotion, scene])
 
@@ -286,6 +554,15 @@ function TerminalPlayback({
         <span>{visibleCommand}</span>
         <span className="atlas-terminal-caret" aria-hidden="true" />
       </div>
+
+      {shouldShowLoading && (
+        <p className="atlas-terminal-loader text-[var(--atlas-terminal-muted)]">
+          <span className="atlas-terminal-spinner text-[var(--atlas-terminal-accent-soft)]">
+            {spinnerGlyph}
+          </span>{' '}
+          {loadingWord}
+        </p>
+      )}
 
       {visibleOutputs.map((line, index) => (
         <p

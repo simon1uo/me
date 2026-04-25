@@ -289,6 +289,21 @@ select {
   animation: atlas-terminal-line-in 240ms ease-out forwards;
 }
 
+.atlas-terminal-loader {
+  opacity: 0;
+  transform: translateY(3px);
+  animation:
+    atlas-terminal-line-in 220ms ease-out forwards,
+    atlas-terminal-loader-pulse 1.05s ease-in-out infinite;
+}
+
+.atlas-terminal-spinner {
+  display: inline-flex;
+  width: 1.3ch;
+  justify-content: center;
+  text-shadow: 0 0 9px color-mix(in srgb, var(--atlas-terminal-accent-soft) 38%, transparent);
+}
+
 .atlas-terminal-viewport {
   display: flex;
   flex: 1;
@@ -404,6 +419,19 @@ select {
     }
   }
 
+  @keyframes atlas-terminal-loader-pulse {
+    0%,
+    100% {
+      filter: brightness(1);
+      text-shadow: 0 0 0 transparent;
+    }
+
+    50% {
+      filter: brightness(1.08);
+      text-shadow: 0 0 8px color-mix(in srgb, var(--atlas-terminal-accent-soft) 36%, transparent);
+    }
+  }
+
   @keyframes atlas-lab-led-pulse {
     0%,
     100% {
@@ -425,6 +453,7 @@ select {
 
 @media (prefers-reduced-motion: reduce) {
   .atlas-terminal-line,
+  .atlas-terminal-loader,
   .atlas-terminal-caret,
   .atlas-lab-led-live,
   .atlas-lab-led-warn {
