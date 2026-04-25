@@ -9,15 +9,17 @@ import {
   type ThemePreference,
 } from './theme-preferences'
 
-const navItems = [
+type NavItem = {
+  href: string
+  label: string
+  icon: () => ReactNode
+  external?: boolean
+}
+
+const navItems: NavItem[] = [
   { href: '/', label: 'Home', icon: HomeIcon },
   { href: '/projects', label: 'Projects', icon: GridIcon },
-  {
-    href: 'https://github.com/simon1uo',
-    label: 'GitHub',
-    external: true,
-    icon: BranchIcon,
-  },
+  { href: '/vibes', label: 'VIBES', icon: BranchIcon },
 ]
 
 const themeOptions: Array<{
