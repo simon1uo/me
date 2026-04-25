@@ -3,6 +3,7 @@ import type { Metadata } from 'next'
 import { CustomMDX } from 'app/components/mdx'
 import { formatDate, getProjects } from 'app/projects/utils'
 import { baseUrl } from 'app/sitemap'
+import { siteConfig } from 'app/config/site'
 
 export async function generateStaticParams() {
   const projects = getProjects()
@@ -85,7 +86,7 @@ export default async function ProjectPage({ params }: { params: Params }) {
             url: `${baseUrl}/projects/${project.slug}`,
             author: {
               '@type': 'Person',
-              name: 'Simon Luo',
+              name: siteConfig.name,
             },
           }),
         }}

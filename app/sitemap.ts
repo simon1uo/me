@@ -1,6 +1,7 @@
 import { getProjects } from 'app/projects/utils'
+import { siteConfig } from 'app/config/site'
 
-export const baseUrl = 'https://portfolio.example.com'
+export const baseUrl = siteConfig.baseUrl
 
 export default async function sitemap() {
   const projects = getProjects().map((project) => ({

@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { useEffect, useRef, useState } from 'react'
 import type { ReactNode } from 'react'
+import { siteConfig } from 'app/config/site'
 import {
   useThemePreferences,
   type FontPreference,
@@ -150,7 +151,7 @@ export function Navbar() {
       <div className="grid grid-cols-2 md:grid-cols-6">
         <div className="atlas-slot col-span-2 border-b border-[var(--atlas-border)] px-3 py-3 md:col-span-2 md:border-r md:border-b-0">
           <p className="font-mono text-xl tracking-tight text-[var(--atlas-accent)]">
-            SIMON LUO
+            {siteConfig.name.toUpperCase()}
           </p>
         </div>
         {navItems.map((item, index) => {

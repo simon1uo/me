@@ -8,7 +8,7 @@ export default function Page() {
         name={siteConfig.name}
         roleLine={siteConfig.roleLine}
         location={siteConfig.location}
-        email={siteConfig.email}
+        emails={siteConfig.emails}
         stackGroups={siteConfig.stackGroups}
         notes={siteConfig.notesPanel}
         stackSnapshot={siteConfig.stackSnapshot}

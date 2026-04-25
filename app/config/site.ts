@@ -3,58 +3,81 @@ type StackGroup = {
   items: string[]
 }
 
+type ContactEmails = {
+  primary: string
+  secondary?: string
+}
+
 type SiteConfig = {
   name: string
   roleLine: string
   introEn: string
   introCn: string
   location: string
-  email: string
+  baseUrl: string
+  emails: ContactEmails
   socialLinks: {
     github: string
-    linkedin: string
     x: string
+    instagram: string
   }
   stackGroups: StackGroup[]
   notesPanel: string[]
   stackSnapshot: string[]
+  seo: {
+    defaultTitle: string
+    titleTemplate: string
+    description: string
+    siteName: string
+    rssDescription: string
+  }
 }
 
 export const siteConfig: SiteConfig = {
   name: 'Simon Luo',
-  roleLine: 'Research-Driven Software Engineer',
-  introEn:
-    'I build reliable product systems with a focus on tooling clarity, delivery discipline, and maintainable interfaces.',
-  introCn: '专注于系统化工程实践、稳定交付与可维护的产品基础设施。',
-  location: 'Shanghai, China',
-  email: 'hello@example.com',
+  roleLine: 'Full-stack Developer / AI Agent Explorer',
+  introEn: 'still keeping hungry and foolish',
+  introCn: '持续求知若愚',
+  location: 'Guangdong, China',
+  baseUrl: 'https://simon1uo.github.io',
+  emails: {
+    primary: 'simon1uo.w@gmail.com',
+    secondary: 'simon1uo@163.com',
+  },
   socialLinks: {
     github: 'https://github.com/simon1uo',
-    linkedin: 'https://www.linkedin.com',
-    x: 'https://x.com',
+    x: 'https://x.com/simon1uo',
+    instagram: 'https://instagram.com/simon1uo',
   },
   stackGroups: [
     {
       title: 'Frontend Systems',
-      items: ['Next.js', 'React', 'TypeScript', 'Tailwind CSS'],
+      items: ['Vue', 'React', 'TypeScript'],
     },
     {
       title: 'Backend / Infra',
-      items: ['Node.js', 'PostgreSQL', 'OpenTelemetry', 'Docker'],
+      items: ['Node.js', 'Java', 'Spring Boot'],
     },
     {
       title: 'Tooling / Workflow',
-      items: ['GitHub Actions', 'ESLint', 'pnpm/npm', 'Vercel'],
+      items: ['Vite', 'VueUse', 'Tailwind CSS'],
     },
   ],
   notesPanel: [
-    'Investigating lighter deployment workflows for small Next.js systems.',
-    'Refining observability boundaries for product-facing services.',
-    'Reducing UI noise while preserving technical context.',
+    'Building production-ready full-stack apps with React/Vue and TypeScript.',
+    'Exploring AI agent workflows to improve engineering productivity.',
+    'Focusing on maintainable architecture and fast delivery loops.',
   ],
   stackSnapshot: [
-    'Next.js + TypeScript',
-    'MDX-first content',
-    'Edge-ready deployment',
+    'Vue + React + TypeScript',
+    'Node.js / Java with Spring Boot',
+    'Vite + Tailwind CSS + AI Agent Tooling',
   ],
+  seo: {
+    defaultTitle: 'Simon Luo | Portfolio',
+    titleTemplate: '%s | Simon Luo',
+    description: 'Full-stack developer portfolio focused on modern web systems and AI agent exploration.',
+    siteName: 'Simon Luo Portfolio',
+    rssDescription: 'Project updates from Simon Luo',
+  },
 }

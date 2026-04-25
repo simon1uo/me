@@ -8,19 +8,20 @@ import { Analytics } from '@vercel/analytics/react'
 import { SpeedInsights } from '@vercel/speed-insights/next'
 import Footer from './components/footer'
 import { baseUrl } from './sitemap'
+import { siteConfig } from 'app/config/site'
 
 export const metadata: Metadata = {
   metadataBase: new URL(baseUrl),
   title: {
-    default: 'Simon Luo | Portfolio',
-    template: '%s | Simon Luo',
+    default: siteConfig.seo.defaultTitle,
+    template: siteConfig.seo.titleTemplate,
   },
-  description: 'Minimal professional portfolio built with Next.js and MDX.',
+  description: siteConfig.seo.description,
   openGraph: {
-    title: 'Simon Luo | Portfolio',
-    description: 'Minimal professional portfolio built with Next.js and MDX.',
+    title: siteConfig.seo.defaultTitle,
+    description: siteConfig.seo.description,
     url: baseUrl,
-    siteName: 'Simon Luo Portfolio',
+    siteName: siteConfig.seo.siteName,
     locale: 'en_US',
     type: 'website',
   },

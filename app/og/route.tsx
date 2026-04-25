@@ -1,8 +1,9 @@
 import { ImageResponse } from 'next/og'
+import { siteConfig } from 'app/config/site'
 
 export function GET(request: Request) {
   const url = new URL(request.url)
-  const title = url.searchParams.get('title') || 'Simon Luo Portfolio'
+  const title = url.searchParams.get('title') || siteConfig.seo.siteName
 
   return new ImageResponse(
     (

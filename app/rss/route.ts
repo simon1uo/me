@@ -1,4 +1,5 @@
 import { baseUrl } from 'app/sitemap'
+import { siteConfig } from 'app/config/site'
 import { getProjects } from 'app/projects/utils'
 
 export async function GET() {
@@ -21,9 +22,9 @@ export async function GET() {
   const rssFeed = `<?xml version="1.0" encoding="UTF-8" ?>
   <rss version="2.0">
     <channel>
-        <title>Simon Luo Portfolio</title>
+        <title>${siteConfig.seo.siteName}</title>
         <link>${baseUrl}</link>
-        <description>Project updates from Simon Luo</description>
+        <description>${siteConfig.seo.rssDescription}</description>
         ${itemsXml}
     </channel>
   </rss>`
