@@ -201,13 +201,14 @@ export function Navbar() {
               <span className={navTextClass}>Theme</span>
             </button>
           </div>
-          {open ? (
-            <div
-              id="theme-panel"
-              className="atlas-menu atlas-panel absolute left-0 right-0 top-[calc(100%+1px)] z-30 w-full min-w-0 overflow-hidden"
-            >
+          <div
+            id="theme-panel"
+            data-state={open ? 'open' : 'closed'}
+            aria-hidden={!open}
+            className="atlas-menu atlas-dropdown atlas-panel absolute left-0 right-0 top-[calc(100%+1px)] z-30 w-full min-w-0 overflow-hidden"
+          >
               <section>
-                <div className="border-b border-[var(--atlas-border)] px-3 py-2">
+                <div className="border-b border-[var(--atlas-menu-border)] px-3 py-2">
                   <p className="atlas-label">Color Theme</p>
                 </div>
                 <div className="atlas-grid-stack grid grid-cols-3">
@@ -224,7 +225,7 @@ export function Navbar() {
                         title={option.label}
                         onClick={() => setThemePreference(option.value)}
                       >
-                        <span className="flex items-center justify-center text-[var(--atlas-text)]">
+                        <span className="flex items-center justify-center text-current">
                           <Icon />
                         </span>
                       </button>
@@ -232,8 +233,8 @@ export function Navbar() {
                   })}
                 </div>
               </section>
-              <section className="border-t border-[var(--atlas-border)]">
-                <div className="border-b border-[var(--atlas-border)] px-3 py-2">
+              <section className="border-t border-[var(--atlas-menu-border)]">
+                <div className="border-b border-[var(--atlas-menu-border)] px-3 py-2">
                   <p className="atlas-label">Typography</p>
                 </div>
                 <div className="atlas-grid-stack grid grid-cols-2">
@@ -245,7 +246,7 @@ export function Navbar() {
                       className="atlas-option"
                       onClick={() => setFontPreference(option.value)}
                     >
-                      <span className="flex items-center justify-between gap-2 text-[var(--atlas-text)]">
+                      <span className="flex items-center justify-between gap-2 text-current">
                         <span>{option.label}</span>
                         <span
                           className="text-base normal-case tracking-normal"
@@ -263,8 +264,7 @@ export function Navbar() {
                   ))}
                 </div>
               </section>
-            </div>
-          ) : null}
+          </div>
         </NavSlot>
       </div>
     </header>
