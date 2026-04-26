@@ -77,7 +77,7 @@ export const siteConfig: SiteConfig = {
     'Vite + Tailwind CSS + AI Agent Tooling',
   ],
   seo: {
-    defaultTitle: 'Simon Luo | Portfolio',
+    defaultTitle: 'Simon Luo | simon1uo.me',
     titleTemplate: '%s | Simon Luo',
     description: 'Full-stack developer portfolio focused on modern web systems and AI agent exploration.',
     siteName: 'Simon Luo Portfolio',
