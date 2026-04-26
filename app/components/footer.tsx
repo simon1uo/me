@@ -1,6 +1,7 @@
 import { siteConfig } from 'app/config/site'
 
 export default function Footer() {
+  const mitLicenseHref = `${siteConfig.socialLinks.github}/simon1uo/blob/main/LICENSE`
   const socialItems = [
     { label: 'GitHub', href: siteConfig.socialLinks.github },
     { label: 'X', href: siteConfig.socialLinks.x },
@@ -25,7 +26,27 @@ export default function Footer() {
           ))}
         </div>
       </div>
-      <p className="mt-3">© {new Date().getFullYear()} MIT Licensed</p>
+      <p className="mt-3">
+        © {new Date().getFullYear()} code is licensed under{' '}
+        <a
+          href={mitLicenseHref}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="hover:text-[var(--atlas-accent)]"
+        >
+          MIT
+        </a>
+        ,<br />
+        words and images are licensed under{' '}
+        <a
+          href="https://creativecommons.org/licenses/by-nc-sa/4.0/"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="hover:text-[var(--atlas-accent)]"
+        >
+          CC BY-NC-SA 4.0
+        </a>
+      </p>
     </footer>
   )
 }

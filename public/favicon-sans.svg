@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" aria-hidden="true">
+  <style>
+    :root {
+      --icon-fg: #161616;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --icon-fg: #f2f5fb;
+      }
+    }
+  </style>
+  <text
+    x="50%"
+    y="50%"
+    fill="var(--icon-fg)"
+    font-family="'Helvetica Neue', Arial, sans-serif"
+    font-size="42"
+    font-weight="500"
+    letter-spacing="-3"
+    text-anchor="middle"
+    dominant-baseline="central"
+    dy="0.2"
+  >
+    SL
+  </text>
+</svg>

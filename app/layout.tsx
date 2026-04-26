@@ -12,6 +12,10 @@ import { siteConfig } from 'app/config/site'
 
 export const metadata: Metadata = {
   metadataBase: new URL(baseUrl),
+  icons: {
+    icon: [{ url: '/favicon-serif.svg', type: 'image/svg+xml' }],
+    shortcut: ['/favicon-serif.svg'],
+  },
   title: {
     default: siteConfig.seo.defaultTitle,
     template: siteConfig.seo.titleTemplate,
@@ -50,6 +54,30 @@ const preferenceScript = `
   const themeKey = 'atlas-theme-preference'
   const fontKey = 'atlas-font-preference'
   const root = document.documentElement
+  const setFavicon = (fontPreference) => {
+    const href = fontPreference === 'sans' ? '/favicon-sans.svg' : '/favicon-serif.svg'
+    const iconTargets = [
+      { rel: 'icon', type: 'image/svg+xml' },
+      { rel: 'shortcut icon' },
+    ]
+
+    iconTargets.forEach((target) => {
+      let link = document.querySelector(
+        \`link[rel="\${target.rel}"][data-atlas-favicon="true"]\`
+      )
+      if (!link) {
+        link = document.createElement('link')
+        link.setAttribute('rel', target.rel)
+        link.setAttribute('data-atlas-favicon', 'true')
+        document.head.appendChild(link)
+      }
+
+      if (target.type) {
+        link.setAttribute('type', target.type)
+      }
+      link.setAttribute('href', href)
+    })
+  }
   const getSystemTheme = () =>
     window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
 
@@ -59,11 +87,20 @@ const preferenceScript = `
     root.dataset.themePreference = themePreference
     root.dataset.theme = themePreference === 'system' ? getSystemTheme() : themePreference
     root.dataset.font = fontPreference
+    setFavicon(fontPreference)
   } catch (error) {
     root.dataset.themePreference = 'system'
     root.dataset.theme = getSystemTheme()
     root.dataset.font = 'serif'
+    setFavicon('serif')
   }
+
+  window.addEventListener('atlas-preferences-change', (event) => {
+    const detail = event && typeof event === 'object' && 'detail' in event ? event.detail : null
+    const fontPreference =
+      detail && detail.fontPreference ? detail.fontPreference : root.dataset.font || 'serif'
+    setFavicon(fontPreference)
+  })
 })()
 `
 
