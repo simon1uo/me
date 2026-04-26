@@ -1,34 +1,21 @@
 'use client'
 
-import { useEffect, useMemo, useState } from 'react'
-import type { LucideIcon } from 'lucide-react'
-import {
-  Bot,
-  Braces,
-  Code2,
-  Coffee,
-  Component,
-  Flame,
-  Layers,
-  Leaf,
-  MonitorCog,
-  Palette,
-  Rocket,
-  Server,
-  Sparkles,
-  Wrench,
-} from 'lucide-react'
+import { useEffect, useMemo, useRef, useState } from 'react'
+
+type CopyLocale = 'en' | 'zh'
+
+type TerminalLineKind =
+  | 'system'
+  | 'task'
+  | 'plan'
+  | 'tool'
+  | 'result'
+  | 'check'
+  | 'next'
 
 type TerminalLine = {
-  text?: string
-  segments?: TerminalSegment[]
-  tone?: 'default' | 'accent' | 'muted' | 'success' | 'warning'
-  prefix?: string
-}
-
-type TerminalSegment = {
+  kind: TerminalLineKind
   text: string
-  icon?: LucideIcon
 }
 
 type TerminalScene = {
@@ -52,14 +39,39 @@ type HomeLabTerminalProps = {
   }>
   notes: string[]
   stackSnapshot: string[]
+  copyLocale?: CopyLocale
+}
+
+type LocaleCopy = {
+  promptRequests: string[]
+  loadingWords: string[]
+  sceneLabels: string[]
+  rolePrefix: string
+  basedPrefix: string
+  focusLead: string
+  stackLead: string
+  toolchainLead: string
+  skillsLead: string
+  proofLead: string
+  nextLead: string
+  footerPrefix: string
+  hud: {
+    contextLeft: string
+    contextUsed: string
+    inLabel: string
+    outLabel: string
+    weeklyLimit: string
+  }
 }
 
 const minSceneDurationMs = 10000
-const maxSceneDurationMs = 12000
+const maxSceneDurationMs = 24000
 const typingStartDelayMs = 420
 const typingStepDelayMinMs = 28
 const typingStepDelayMaxMs = 88
 const submitPauseMs = 420
+const clearFramePauseMs = 120
+const clearBlankAfterExecuteMs = 120
 const outputStepDelayMs = 380
 const outputStepJitterMs = 150
 const loadingPhaseMinMs = 900
@@ -68,212 +80,82 @@ const spinnerFrameDelayMinMs = 170
 const spinnerFrameDelayMaxMs = 300
 const spinnerFrames = ['✶', '✸', '✹', '✺']
 
-const keywordIconMap: Array<{ key: string; icon: LucideIcon }> = [
-  { key: 'typescript', icon: Braces },
-  { key: 'javascript', icon: Code2 },
-  { key: 'react', icon: Component },
-  { key: 'vueuse', icon: Sparkles },
-  { key: 'vue', icon: Leaf },
-  { key: 'node.js', icon: Server },
-  { key: 'java', icon: Coffee },
-  { key: 'spring boot', icon: Flame },
-  { key: 'vite', icon: Rocket },
-  { key: 'tailwind css', icon: Palette },
-  { key: 'ai agent tooling', icon: Bot },
-  { key: 'tooling', icon: Wrench },
-  { key: 'workflow', icon: MonitorCog },
-]
+const driverTemplates = ['simondex', 'simonaude'] as const
 
-const fallbackKeywordIcon = Layers
-
-const loadingWordBank = [
-  'Accomplishing',
-  'Actioning',
-  'Actualizing',
-  'Architecting',
-  'Baking',
-  'Beaming',
-  "Beboppin'",
-  'Befuddling',
-  'Billowing',
-  'Blanching',
-  'Bloviating',
-  'Boogieing',
-  'Boondoggling',
-  'Booping',
-  'Bootstrapping',
-  'Brewing',
-  'Burrowing',
-  'Calculating',
-  'Canoodling',
-  'Caramelizing',
-  'Cascading',
-  'Catapulting',
-  'Cerebrating',
-  'Channelling',
-  'Choreographing',
-  'Churning',
-  'Clauding',
-  'Coalescing',
-  'Cogitating',
-  'Combobulating',
-  'Composing',
-  'Computing',
-  'Concocting',
-  'Considering',
-  'Contemplating',
-  'Cooking',
-  'Crafting',
-  'Creating',
-  'Crystallizing',
-  'Cultivating',
-  'Crunching',
-  'Deciphering',
-  'Deliberating',
-  'Determining',
-  'Dilly-dallying',
-  'Discombobulating',
-  'Doing',
-  'Doodling',
-  'Drizzling',
-  'Ebbing',
-  'Effecting',
-  'Elucidating',
-  'Embellishing',
-  'Enchanting',
-  'Envisioning',
-  'Evaporating',
-  'Fermenting',
-  'Fiddle-faddling',
-  'Finagling',
-  'Flambéing',
-  'Flibbertigibbeting',
-  'Flowing',
-  'Flummoxing',
-  'Fluttering',
-  'Forging',
-  'Forming',
-  'Frosting',
-  'Frolicking',
-  'Gallivanting',
-  'Galloping',
-  'Garnishing',
-  'Generating',
-  'Germinating',
-  'Gitifying',
-  'Grooving',
-  'Gusting',
-  'Harmonizing',
-  'Hashing',
-  'Hatching',
-  'Herding',
-  'Hibernating',
-  'Honking',
-  'Hullaballooing',
-  'Hyperspacing',
-  'Ideating',
-  'Imagining',
-  'Improvising',
-  'Incubating',
-  'Inferring',
-  'Infusing',
-  'Ionizing',
-  'Jitterbugging',
-  'Julienning',
-  'Kneading',
-  'Leavening',
-  'Levitating',
-  'Lollygagging',
-  'Manifesting',
-  'Marinating',
-  'Meandering',
-  'Metamorphosing',
-  'Misting',
-  'Moonwalking',
-  'Moseying',
-  'Mulling',
-  'Mustering',
-  'Musing',
-  'Nebulizing',
-  'Nesting',
-  'Noodling',
-  'Nucleating',
-  'Orbiting',
-  'Orchestrating',
-  'Osmosing',
-  'Perambulating',
-  'Percolating',
-  'Perusing',
-  'Philosophising',
-  'Photosynthesizing',
-  'Pollinating',
-  'Pontificating',
-  'Pondering',
-  'Pouncing',
-  'Precipitating',
-  'Prestidigitating',
-  'Processing',
-  'Proofing',
-  'Propagating',
-  'Puttering',
-  'Puzzling',
-  'Quantumizing',
-  'Razzle-dazzling',
-  'Razzmatazzing',
-  'Recombobulating',
-  'Reticulating',
-  'Roosting',
-  'Ruminating',
-  'Sautéing',
-  'Scampering',
-  'Scheming',
-  'Schlepping',
-  'Scurrying',
-  'Seasoning',
-  'Shenaniganing',
-  'Shimmying',
-  'Simmering',
-  'Skedaddling',
-  'Sketching',
-  'Slithering',
-  'Smooshing',
-  'Sock-hopping',
-  'Spelunking',
-  'Spinning',
-  'Sprouting',
-  'Stewing',
-  'Sublimating',
-  'Sussing',
-  'Swirling',
-  'Swooping',
-  'Symbioting',
-  'Synthesizing',
-  'Tempering',
-  'Thinking',
-  'Thundering',
-  'Tinkering',
-  'Tomfoolering',
-  'Topsy-turvying',
-  'Transfiguring',
-  'Transmuting',
-  'Twisting',
-  'Undulating',
-  'Unfurling',
-  'Unravelling',
-  'Vibing',
-  'Waddling',
-  'Wandering',
-  'Warping',
-  'Whatchamacalliting',
-  'Whirlpooling',
-  'Whirring',
-  'Whisking',
-  'Wibbling',
-  'Working',
-  'Wrangling',
-  'Zesting',
-  'Zigzagging',
-]
+const copyByLocale: Record<CopyLocale, LocaleCopy> = {
+  en: {
+    promptRequests: [
+      'Help me introduce this person in a concise and friendly way.',
+      'Help me summarize what this person has been working on recently.',
+      "Help me describe this person's frontend and backend tech stack.",
+      "Help me describe this person's toolchain and engineering workflow.",
+      "Help me summarize this person's core skills with concrete proof.",
+      'Help me summarize how to collaborate with this person effectively.',
+    ],
+    loadingWords: [
+      'Aligning',
+      'Composing',
+      'Orchestrating',
+      'Validating',
+      'Sequencing',
+      'Synthesizing',
+      'Checking',
+      'Routing',
+    ],
+    sceneLabels: [
+      'who-i-am',
+      'what-i-build',
+      'stack-map',
+      'toolchain-flow',
+      'skills-proof',
+      'collab-next',
+    ],
+    rolePrefix: 'Role',
+    basedPrefix: 'Based in',
+    focusLead: 'Current focus',
+    stackLead: 'Core stack',
+    toolchainLead: 'Toolchain',
+    skillsLead: 'Skill',
+    proofLead: 'Proof',
+    nextLead: 'Next loop',
+    footerPrefix: 'profile',
+    hud: {
+      contextLeft: 'Context',
+      contextUsed: 'Context',
+      inLabel: 'in',
+      outLabel: 'out',
+      weeklyLimit: 'Weekly limit',
+    },
+  },
+  zh: {
+    promptRequests: [
+      '帮我用简洁自然的方式介绍这个人。',
+      '帮我总结这个人最近在干什么。',
+      '帮我描述这个人的前后端技术栈。',
+      '帮我描述这个人的工具链和工程流程。',
+      '帮我总结这个人的核心技能并给出证据。',
+      '帮我总结如何高效地与这个人协作。',
+    ],
+    loadingWords: ['对齐中', '编排中', '校验中', '整合中', '同步中', '构建中', '检查中', '路由中'],
+    sceneLabels: ['个人介绍', '工作重心', '技术栈', '工具链', '技能证明', '协作信息'],
+    rolePrefix: '角色',
+    basedPrefix: '所在地',
+    focusLead: '当前重心',
+    stackLead: '核心技术栈',
+    toolchainLead: '工具链',
+    skillsLead: '技能',
+    proofLead: '证据',
+    nextLead: '下一轮',
+    footerPrefix: '档案',
+    hud: {
+      contextLeft: '上下文',
+      contextUsed: '上下文',
+      inLabel: '输入',
+      outLabel: '输出',
+      weeklyLimit: '周限额',
+    },
+  },
+}
 
 function randomBetween(min: number, max: number) {
   const lower = Math.ceil(Math.min(min, max))
@@ -281,61 +163,12 @@ function randomBetween(min: number, max: number) {
   return Math.floor(Math.random() * (upper - lower + 1)) + lower
 }
 
-function pickRandomWord(source: string[]) {
-  return source[randomBetween(0, source.length - 1)]
-}
+function pickBySlot<T>(source: readonly T[], slot: number) {
+  if (!source.length) {
+    throw new Error('pickBySlot requires a non-empty array')
+  }
 
-function iconForKeyword(keyword: string) {
-  const normalizedKeyword = keyword.toLowerCase().trim()
-  const matched = keywordIconMap.find(({ key }) =>
-    normalizedKeyword.includes(key)
-  )
-
-  return matched?.icon || fallbackKeywordIcon
-}
-
-function buildKeywordSegments(items: string[]) {
-  return items.flatMap((item, index) => {
-    const entry: TerminalSegment[] = [
-      {
-        text: item,
-        icon: iconForKeyword(item),
-      },
-    ]
-
-    if (index < items.length - 1) {
-      entry.push({ text: ', ' })
-    }
-
-    return entry
-  })
-}
-
-function estimateSceneDuration(scene: TerminalScene) {
-  const commandChars = scene.command.length
-  const outputChars = scene.outputs.reduce(
-    (total, line) =>
-      total +
-      (line.text?.length || 0) +
-      (line.prefix?.length || 0) +
-      (line.segments?.reduce(
-        (segmentTotal, segment) => segmentTotal + segment.text.length,
-        0
-      ) || 0),
-    0
-  )
-  const outputLines = scene.outputs.length
-  const avgTypingDelay = (typingStepDelayMinMs + typingStepDelayMaxMs) / 2
-  const typingBudget = commandChars * avgTypingDelay
-  const loadingBudget =
-    submitPauseMs + (loadingPhaseMinMs + loadingPhaseMaxMs) / 2
-  const revealBudget = outputLines * (outputStepDelayMs + outputStepJitterMs / 2)
-  const readingBudget = outputChars * 10 + outputLines * 600
-
-  const rawDuration =
-    typingStartDelayMs + typingBudget + loadingBudget + revealBudget + readingBudget
-
-  return Math.max(minSceneDurationMs, Math.min(maxSceneDurationMs, rawDuration))
+  return source[((slot % source.length) + source.length) % source.length]
 }
 
 function typingDelayForChar(char: string) {
@@ -348,6 +181,14 @@ function typingDelayForChar(char: string) {
   }
 
   return randomBetween(typingStepDelayMinMs, typingStepDelayMaxMs)
+}
+
+function readingHoldForScene(scene: TerminalScene) {
+  const outputChars = scene.outputs.reduce((total, line) => total + line.text.length, 0)
+  const outputLines = scene.outputs.length
+  const hold = outputChars * 14 + outputLines * 760
+
+  return Math.max(3200, Math.min(6200, hold))
 }
 
 function useReducedMotionPreference() {
@@ -368,135 +209,318 @@ function useReducedMotionPreference() {
   return prefersReducedMotion
 }
 
-function buildScenes({
-  name,
-  roleLine,
-  location,
-  emails,
-  stackGroups,
-  notes,
-  stackSnapshot,
-}: HomeLabTerminalProps): TerminalScene[] {
-  const workflowItems = stackGroups.find(
-    (group) => group.title === 'Tooling / Workflow'
-  )?.items
-  const frontendItems = stackGroups.find(
-    (group) => group.title === 'Frontend Systems'
-  )?.items
-  const backendItems = stackGroups.find(
-    (group) => group.title === 'Backend / Infra'
-  )?.items
-
-  return [
-    {
-      label: 'bootstrap',
-      command: './boot --profile atlas --mode lab',
-      outputs: [
-        { text: '[ok] shell kernel online', tone: 'success' },
-        { text: '[====] loading operator manifest', tone: 'accent' },
-        { text: `${name} :: ${roleLine}`, tone: 'default' },
-      ],
-      footer: 'session::bootstrapped',
-    },
-    {
-      label: 'identity',
-      command: 'cat ~/.config/lab/operator.yml',
-      outputs: [
-        { text: `name: ${name}`, tone: 'default' },
-        { text: `role: ${roleLine}`, tone: 'default' },
-        { text: `base: ${location}`, tone: 'muted' },
-        { text: `contact: ${emails.primary}`, tone: 'muted' },
-        ...(emails.secondary
-          ? [{ text: `backup: ${emails.secondary}`, tone: 'muted' as const }]
-          : []),
-      ],
-      footer: 'profile::mounted',
-    },
-    {
-      label: 'stack',
-      command: 'pnpm dlx envinfo --system --binaries --browsers',
-      outputs: [
-        {
-          segments: [
-            { text: 'frontend => ' },
-            ...buildKeywordSegments(frontendItems || []),
-          ],
-          tone: 'accent',
-        },
-        {
-          segments: [
-            { text: 'backend  => ' },
-            ...buildKeywordSegments(backendItems || []),
-          ],
-          tone: 'default',
-        },
-        {
-          segments: [
-            { text: 'ops      => ' },
-            ...buildKeywordSegments(workflowItems || []),
-          ],
-          tone: 'muted',
-        },
-      ],
-      footer: 'stack::indexed',
-    },
-    {
-      label: 'workflow',
-      command: 'git status --short && ./ops/checklist --today',
-      outputs: [
-        { text: 'M app/page.tsx', tone: 'warning' },
-        { text: '[ok] lint -> build -> ship', tone: 'success' },
-        { text: '[ok] delivery discipline enforced', tone: 'success' },
-      ],
-      footer: 'workflow::armed',
-    },
-    {
-      label: 'toolchain',
-      command: 'ls ~/toolchain --group-directories-first',
-      outputs: (stackSnapshot.length
-        ? stackSnapshot
-        : ['Next.js + TypeScript']
-      )
-        .slice(0, 3)
-        .map((item) => ({
-          segments: [{ text: item, icon: iconForKeyword(item) }],
-          prefix: '- ',
-          tone: 'default' as const,
-        })),
-      footer: 'toolchain::available',
-    },
-    {
-      label: 'notes',
-      command: 'tail -n 3 ~/logs/current-focus.log',
-      outputs: notes.slice(0, 2).map((note) => ({
-        text: note,
-        prefix: '> ',
-        tone: 'muted' as const,
-      })),
-      footer: 'focus::streaming',
-    },
-  ]
+function formatStack(items: string[]) {
+  return items.length ? items.join(' · ') : 'TypeScript · React · Node.js'
 }
 
-function lineToneClass(tone: TerminalLine['tone']) {
-  switch (tone) {
-    case 'accent':
-      return 'text-[var(--atlas-terminal-accent-soft)]'
-    case 'muted':
+function findGroupItems(
+  stackGroups: HomeLabTerminalProps['stackGroups'],
+  keyword: string
+) {
+  const target = stackGroups.find((group) =>
+    group.title.toLowerCase().includes(keyword.toLowerCase())
+  )
+
+  return target?.items || []
+}
+
+function buildScenes(props: HomeLabTerminalProps, cycle: number): TerminalScene[] {
+  const locale = props.copyLocale || 'en'
+  const copy = copyByLocale[locale]
+  const frontend = findGroupItems(props.stackGroups, 'frontend')
+  const backend = findGroupItems(props.stackGroups, 'backend')
+  const tooling = findGroupItems(props.stackGroups, 'tooling')
+
+  const focusNote = props.notes[cycle % Math.max(props.notes.length, 1)] ||
+    'Building maintainable products with fast feedback loops.'
+  const snapshot = props.stackSnapshot.length
+    ? props.stackSnapshot
+    : ['Vue + React + TypeScript', 'Node.js / Java + Spring Boot', 'Vite + Tailwind + Agent tooling']
+
+  const skillLines = [
+    {
+      skill: snapshot[0] || 'Frontend systems',
+      proof: props.notes[0] || 'Shipped production-ready UI systems with clear structure.',
+    },
+    {
+      skill: snapshot[1] || 'Backend delivery',
+      proof: props.notes[1] || 'Built stable service layers and iterative API workflows.',
+    },
+    {
+      skill: snapshot[2] || 'Tooling and workflow',
+      proof: props.notes[2] || 'Maintained fast lint-build-ship loops for reliability.',
+    },
+  ]
+
+  return copy.sceneLabels.map((label, index) => {
+    const slot = cycle * 13 + index * 5
+    const nextLabel = copy.sceneLabels[(index + 1) % copy.sceneLabels.length]
+    const driver = pickBySlot(driverTemplates, slot + 1)
+    const prompt = copy.promptRequests[index] || copy.promptRequests[0]
+    const command =
+      driver === 'simonaude'
+        ? `simonaude --dangerously-skip-permissions -p "${prompt}"`
+        : `simondex --yolo -p "${prompt}"`
+
+    let outputs: TerminalLine[] = []
+
+    switch (index) {
+      case 0:
+        outputs = [
+          {
+            kind: 'system',
+            text:
+              locale === 'zh'
+                ? `你好，我是 ${props.name}。这里是自动演示模式。`
+                : `Hi, I'm ${props.name}. This terminal is running in autoplay demo mode.`,
+          },
+          {
+            kind: 'task',
+            text: `${copy.rolePrefix}: ${props.roleLine}.`,
+          },
+          {
+            kind: 'result',
+            text: `${copy.basedPrefix}: ${props.location}.`,
+          },
+          {
+            kind: 'next',
+            text:
+              locale === 'zh'
+                ? `${copy.nextLead}: 进入「${nextLabel}」。`
+                : `${copy.nextLead}: moving to "${nextLabel}".`,
+          },
+        ]
+        break
+      case 1:
+        outputs = [
+          {
+            kind: 'plan',
+            text: `${copy.focusLead}: ${focusNote}`,
+          },
+          {
+            kind: 'tool',
+            text:
+              locale === 'zh'
+                ? '我更偏向小步快跑、可验证、可迭代的交付方式。'
+                : 'I favor small, verifiable increments with fast delivery loops.',
+          },
+          {
+            kind: 'result',
+            text:
+              locale === 'zh'
+                ? '目标是持续交付，同时保持代码结构清晰可维护。'
+                : 'The goal is steady shipping while keeping architecture maintainable.',
+          },
+          {
+            kind: 'next',
+            text:
+              locale === 'zh'
+                ? `${copy.nextLead}: 进入「${nextLabel}」。`
+                : `${copy.nextLead}: moving to "${nextLabel}".`,
+          },
+        ]
+        break
+      case 2:
+        outputs = [
+          {
+            kind: 'plan',
+            text: `${copy.stackLead}: ${formatStack(frontend)} / ${formatStack(backend)}.`,
+          },
+          {
+            kind: 'result',
+            text:
+              locale === 'zh'
+                ? `前端：${formatStack(frontend)}。后端：${formatStack(backend)}。`
+                : `Frontend: ${formatStack(frontend)}. Backend: ${formatStack(backend)}.`,
+          },
+          {
+            kind: 'check',
+            text:
+              locale === 'zh'
+                ? '偏好类型安全、模块边界明确、可持续扩展。'
+                : 'I optimize for type safety, clear boundaries, and long-term scalability.',
+          },
+          {
+            kind: 'next',
+            text:
+              locale === 'zh'
+                ? `${copy.nextLead}: 进入「${nextLabel}」。`
+                : `${copy.nextLead}: moving to "${nextLabel}".`,
+          },
+        ]
+        break
+      case 3:
+        outputs = [
+          {
+            kind: 'tool',
+            text: `${copy.toolchainLead}: ${formatStack(tooling)}.`,
+          },
+          {
+            kind: 'result',
+            text:
+              locale === 'zh'
+                ? '默认工作节奏：lint -> build -> ship。'
+                : 'Default rhythm: lint -> build -> ship.',
+          },
+          {
+            kind: 'check',
+            text:
+              locale === 'zh'
+                ? '我会优先保证反馈速度与交付稳定性。'
+                : 'I keep feedback loops short and release quality stable.',
+          },
+          {
+            kind: 'next',
+            text:
+              locale === 'zh'
+                ? `${copy.nextLead}: 进入「${nextLabel}」。`
+                : `${copy.nextLead}: moving to "${nextLabel}".`,
+          },
+        ]
+        break
+      case 4:
+        outputs = [
+          {
+            kind: 'task',
+            text: `${copy.skillsLead}: ${skillLines[0].skill}.`,
+          },
+          {
+            kind: 'result',
+            text: `${copy.proofLead}: ${skillLines[0].proof}`,
+          },
+          {
+            kind: 'task',
+            text: `${copy.skillsLead}: ${skillLines[1].skill}.`,
+          },
+          {
+            kind: 'result',
+            text: `${copy.proofLead}: ${skillLines[1].proof}`,
+          },
+          {
+            kind: 'task',
+            text: `${copy.skillsLead}: ${skillLines[2].skill}.`,
+          },
+          {
+            kind: 'result',
+            text: `${copy.proofLead}: ${skillLines[2].proof}`,
+          },
+          {
+            kind: 'next',
+            text:
+              locale === 'zh'
+                ? `${copy.nextLead}: 进入「${nextLabel}」。`
+                : `${copy.nextLead}: moving to "${nextLabel}".`,
+          },
+        ]
+        break
+      default:
+        outputs = [
+          {
+            kind: 'system',
+            text:
+              locale === 'zh'
+                ? `联系我：${props.emails.primary}${props.emails.secondary ? ` / ${props.emails.secondary}` : ''}`
+                : `Reach me at ${props.emails.primary}${props.emails.secondary ? ` / ${props.emails.secondary}` : ''}.`,
+          },
+          {
+            kind: 'tool',
+            text:
+              locale === 'zh'
+                ? '支持远程协作，偏好直接沟通与结果导向。'
+                : 'Open to remote collaboration with direct communication and outcome focus.',
+          },
+          {
+            kind: 'check',
+            text:
+              locale === 'zh'
+                ? '如果你有项目目标，我可以快速给出实现路径。'
+                : 'If you have a project goal, I can quickly turn it into an execution path.',
+          },
+          {
+            kind: 'next',
+            text:
+              locale === 'zh'
+                ? `${copy.nextLead}: 回到「${nextLabel}」。`
+                : `${copy.nextLead}: back to "${nextLabel}".`,
+          },
+        ]
+    }
+
+    return {
+      label,
+      command,
+      outputs,
+      footer:
+        locale === 'zh'
+          ? `${copy.footerPrefix}::${props.name} · role::${props.roleLine} · loop::${cycle + 1}`
+          : `${copy.footerPrefix}::${props.name} · role::${props.roleLine} · loop::${cycle + 1}`,
+    }
+  })
+}
+
+function estimateSceneDuration(scene: TerminalScene) {
+  const clearCommandChars = '/clear'.length
+  const commandChars = scene.command.length
+  const outputLines = scene.outputs.length
+  const avgTypingDelay = (typingStepDelayMinMs + typingStepDelayMaxMs) / 2
+  const typingBudget = commandChars * avgTypingDelay
+  const clearTailBudget =
+    clearCommandChars * avgTypingDelay + clearFramePauseMs + clearBlankAfterExecuteMs
+  const loadingBudget = submitPauseMs + (loadingPhaseMinMs + loadingPhaseMaxMs) / 2
+  const revealBudget = outputLines * (outputStepDelayMs + outputStepJitterMs / 2)
+  const readingBudget = readingHoldForScene(scene)
+
+  const rawDuration =
+    typingStartDelayMs +
+    typingBudget +
+    loadingBudget +
+    revealBudget +
+    readingBudget +
+    clearTailBudget
+
+  return Math.max(minSceneDurationMs, Math.min(maxSceneDurationMs, rawDuration))
+}
+
+function lineKindClass(kind: TerminalLineKind) {
+  switch (kind) {
+    case 'system':
       return 'text-[var(--atlas-terminal-muted)]'
-    case 'success':
-      return 'text-[var(--atlas-terminal-success)]'
-    case 'warning':
+    case 'task':
+      return 'text-[var(--atlas-terminal-text)]'
+    case 'plan':
+      return 'text-[var(--atlas-terminal-accent-soft)]'
+    case 'tool':
       return 'text-[var(--atlas-terminal-warning)]'
+    case 'result':
+      return 'text-[var(--atlas-terminal-text)]'
+    case 'check':
+      return 'text-[var(--atlas-terminal-success)]'
+    case 'next':
+      return 'text-[var(--atlas-terminal-accent-soft)]'
     default:
       return 'text-[var(--atlas-terminal-text)]'
   }
 }
 
+function linePrefix(kind: TerminalLineKind) {
+  switch (kind) {
+    case 'system':
+      return '• '
+    case 'next':
+      return '→ '
+    default:
+      return ''
+  }
+}
+
 export function HomeLabTerminal(props: HomeLabTerminalProps) {
-  const scenes = useMemo(() => buildScenes(props), [props])
-  const prefersReducedMotion = useReducedMotionPreference()
   const [sceneIndex, setSceneIndex] = useState(0)
+  const [cycle, setCycle] = useState(0)
+  const scenes = useMemo(() => buildScenes(props, cycle), [props, cycle])
+  const prefersReducedMotion = useReducedMotionPreference()
+
+  const locale = props.copyLocale || 'en'
+  const copy = copyByLocale[locale]
 
   const currentScene = scenes[sceneIndex]
   const currentSceneDuration = useMemo(
@@ -504,13 +528,38 @@ export function HomeLabTerminal(props: HomeLabTerminalProps) {
     [currentScene]
   )
 
+  const hudStats = useMemo(() => {
+    const seed = cycle * 37 + sceneIndex * 19 + currentScene.label.length * 13
+    const contextUsed = 24 + (seed % 34)
+    const contextLeft = 100 - contextUsed
+    const inMillions = (2.6 + ((seed * 17) % 230) / 100).toFixed(1)
+    const outThousands = (18 + ((seed * 23) % 220) / 10).toFixed(1)
+    const weeklyLimitPercent = 42 + ((seed * 11) % 44)
+
+    return {
+      contextLeft,
+      contextUsed,
+      tokensIn: `${inMillions}M`,
+      tokensOut: `${outThousands}K`,
+      weeklyLimitPercent,
+    }
+  }, [cycle, sceneIndex, currentScene.label])
+
   useEffect(() => {
     if (prefersReducedMotion) {
       return
     }
 
     const timeoutId = window.setTimeout(() => {
-      setSceneIndex((current) => (current + 1) % scenes.length)
+      setSceneIndex((current) => {
+        const next = (current + 1) % scenes.length
+
+        if (next === 0) {
+          setCycle((value) => value + 1)
+        }
+
+        return next
+      })
     }, currentSceneDuration)
 
     return () => {
@@ -539,12 +588,37 @@ export function HomeLabTerminal(props: HomeLabTerminalProps) {
               <span>{currentScene.label}</span>
             </div>
           </div>
+
           <div className="atlas-terminal-viewport">
             <TerminalPlayback
-              key={currentScene.label}
+              key={`${sceneIndex}-${currentScene.label}-${currentScene.command}-${cycle}-${locale}`}
               scene={currentScene}
               prefersReducedMotion={prefersReducedMotion}
+              loadingWords={copy.loadingWords}
             />
+          </div>
+
+          <div className="border-t border-[var(--atlas-terminal-border)] px-4 py-3 font-mono sm:px-5">
+            <div className="flex flex-col gap-2 text-[0.62rem] leading-5 text-[var(--atlas-terminal-muted)] sm:flex-row sm:items-center sm:justify-between sm:text-[0.66rem]">
+              <p className="break-words">
+                {copy.hud.contextLeft} {hudStats.contextLeft}% left · {copy.hud.contextUsed} {hudStats.contextUsed}% used · {hudStats.tokensIn} {copy.hud.inLabel} · {hudStats.tokensOut} {copy.hud.outLabel}
+              </p>
+              <div className="flex items-center gap-2 text-[0.62rem] sm:text-[0.66rem]">
+                <span className="text-[var(--atlas-terminal-text)]">
+                  {copy.hud.weeklyLimit}
+                </span>
+                <div className="h-1.5 w-28 overflow-hidden border border-[var(--atlas-terminal-border)] bg-[color-mix(in_srgb,var(--atlas-terminal-window-bottom)_82%,transparent)] sm:w-36">
+                  <div
+                    className="h-full bg-[linear-gradient(90deg,color-mix(in_srgb,var(--atlas-terminal-accent-soft)_86%,white_14%),color-mix(in_srgb,var(--atlas-terminal-accent-soft)_58%,var(--atlas-terminal-border)_42%))] transition-[width] duration-700 ease-out"
+                    style={{ width: `${hudStats.weeklyLimitPercent}%` }}
+                    aria-hidden="true"
+                  />
+                </div>
+                <span className="text-[var(--atlas-terminal-accent-soft)]">
+                  {hudStats.weeklyLimitPercent}%
+                </span>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -555,23 +629,37 @@ export function HomeLabTerminal(props: HomeLabTerminalProps) {
 function TerminalPlayback({
   scene,
   prefersReducedMotion,
+  loadingWords,
 }: {
   scene: TerminalScene
   prefersReducedMotion: boolean
+  loadingWords: string[]
 }) {
+  const viewportRef = useRef<HTMLDivElement | null>(null)
+  const clearCommand = '/clear'
+  const [clearTypedLength, setClearTypedLength] = useState(0)
+  const [showClearTail, setShowClearTail] = useState(false)
+  const [isContentCleared, setIsContentCleared] = useState(false)
   const [typedLength, setTypedLength] = useState(0)
   const [showOutputs, setShowOutputs] = useState(0)
   const [loadingWord, setLoadingWord] = useState('')
   const [spinnerFrameIndex, setSpinnerFrameIndex] = useState(0)
+  const postOutputHoldMs = useMemo(() => readingHoldForScene(scene), [scene])
 
   const visibleCommand = prefersReducedMotion
     ? scene.command
     : scene.command.slice(0, typedLength)
+  const visibleClearCommand = clearCommand.slice(0, clearTypedLength)
   const visibleOutputs = prefersReducedMotion
     ? scene.outputs
     : scene.outputs.slice(0, showOutputs)
   const shouldShowLoading = Boolean(loadingWord)
   const spinnerGlyph = spinnerFrames[spinnerFrameIndex % spinnerFrames.length]
+  const shouldShowPromptCaret =
+    !prefersReducedMotion && typedLength < scene.command.length
+  const shouldShowClearCaret =
+    !prefersReducedMotion && showClearTail && clearTypedLength < clearCommand.length
+  const primaryPromptText = isContentCleared ? '' : visibleCommand
 
   useEffect(() => {
     if (prefersReducedMotion) {
@@ -594,6 +682,28 @@ function TerminalPlayback({
     const revealOutputs = (index: number) => {
       if (index >= scene.outputs.length) {
         setLoadingWord('')
+        schedule(() => {
+          setShowClearTail(true)
+          setClearTypedLength(0)
+
+          const typeClear = (clearIndex: number) => {
+            if (clearIndex >= clearCommand.length) {
+              schedule(() => {
+                setShowClearTail(false)
+                setIsContentCleared(true)
+              }, clearBlankAfterExecuteMs)
+              return
+            }
+
+            setClearTypedLength(clearIndex + 1)
+            schedule(
+              () => typeClear(clearIndex + 1),
+              typingDelayForChar(clearCommand[clearIndex])
+            )
+          }
+
+          typeClear(0)
+        }, postOutputHoldMs)
         return
       }
 
@@ -607,7 +717,7 @@ function TerminalPlayback({
     const runLoadingPhase = () => {
       const phaseDuration = randomBetween(loadingPhaseMinMs, loadingPhaseMaxMs)
       const phaseStartedAt = Date.now()
-      const selectedWord = pickRandomWord(loadingWordBank)
+      const selectedWord = pickBySlot(loadingWords, phaseStartedAt)
 
       setLoadingWord(selectedWord)
       setSpinnerFrameIndex(0)
@@ -649,67 +759,95 @@ function TerminalPlayback({
       cancelled = true
       timeoutIds.forEach((timeoutId) => window.clearTimeout(timeoutId))
     }
-  }, [prefersReducedMotion, scene])
+  }, [loadingWords, postOutputHoldMs, prefersReducedMotion, scene])
+
+  useEffect(() => {
+    const viewport = viewportRef.current
+    if (!viewport) {
+      return
+    }
+
+    viewport.scrollTop = viewport.scrollHeight
+  }, [scene.label, clearTypedLength, showClearTail, showOutputs, typedLength, shouldShowLoading, isContentCleared])
 
   return (
-    <div className="flex min-h-0 flex-1 flex-col justify-start space-y-3 px-4 py-5 font-mono text-[0.84rem] leading-6 text-[var(--atlas-terminal-text)] sm:px-5 sm:text-[0.88rem]">
-      <div className="flex flex-wrap items-center gap-x-1.5">
-        <span className="text-[var(--atlas-terminal-accent-soft)]">
-          simon@lab
-        </span>
-        <span className="text-[var(--atlas-terminal-muted)]">~/workspace</span>
-        <span className="text-[var(--atlas-terminal-success)]">$</span>
-        <span>{visibleCommand}</span>
-        <span className="atlas-terminal-caret" aria-hidden="true" />
+    <div
+      ref={viewportRef}
+      className="atlas-terminal-scroll flex min-h-0 flex-1 flex-col justify-start space-y-3 overflow-x-hidden overflow-y-auto px-4 py-5 font-mono text-[0.84rem] leading-6 text-[var(--atlas-terminal-text)] sm:px-5 sm:text-[0.88rem]"
+    >
+      <div className="min-w-0">
+        <p className="min-w-0">
+          <span className="whitespace-nowrap text-[var(--atlas-terminal-accent-soft)]">
+            simon@lab
+          </span>{' '}
+          <span className="whitespace-nowrap text-[var(--atlas-terminal-muted)]">
+            ~/workspace
+          </span>{' '}
+          <span className="whitespace-nowrap text-[var(--atlas-terminal-success)]">
+            $
+          </span>{' '}
+          <span className="whitespace-pre-wrap break-all [overflow-wrap:anywhere]">
+            {primaryPromptText}
+          </span>
+          {!isContentCleared && shouldShowPromptCaret ? (
+            <span className="atlas-terminal-caret ml-0.5 shrink-0" aria-hidden="true" />
+          ) : null}
+        </p>
       </div>
 
-      {shouldShowLoading && (
-        <p className="atlas-terminal-loader text-[var(--atlas-terminal-muted)]">
-          <span className="atlas-terminal-spinner text-[var(--atlas-terminal-accent-soft)]">
-            {spinnerGlyph}
-          </span>{' '}
-          {loadingWord}
-        </p>
-      )}
-
-      {visibleOutputs.map((line, index) => (
-        <p
-          key={`${scene.label}-${index}-${
-            line.text ||
-            line.segments?.map((segment) => segment.text).join('') ||
-            'line'
-          }`}
-          className={`${lineToneClass(line.tone)} atlas-terminal-line`}
-        >
-          <span className="text-[var(--atlas-terminal-accent-soft)]">
-            {line.prefix || ''}
-          </span>
-          {line.segments?.length ? (
-            <span className="inline-flex flex-wrap items-center gap-x-1">
-              {line.segments.map((segment, segmentIndex) => {
-                const SegmentIcon = segment.icon
-                return (
-                  <span
-                    key={`${scene.label}-${index}-${segmentIndex}-${segment.text}`}
-                    className="inline-flex items-center gap-1"
-                  >
-                    {SegmentIcon ? (
-                      <SegmentIcon
-                        aria-hidden="true"
-                        className="h-3.5 w-3.5 text-[var(--atlas-terminal-accent-soft)]"
-                        strokeWidth={1.75}
-                      />
-                    ) : null}
-                    <span>{segment.text}</span>
-                  </span>
-                )
-              })}
-            </span>
-          ) : (
-            line.text
+      {!isContentCleared && (
+        <>
+          {shouldShowLoading && (
+            <p className="atlas-terminal-loader text-[var(--atlas-terminal-muted)]">
+              <span className="atlas-terminal-spinner text-[var(--atlas-terminal-accent-soft)]">
+                {spinnerGlyph}
+              </span>{' '}
+              {loadingWord}
+            </p>
           )}
-        </p>
-      ))}
+
+          {visibleOutputs.map((line, index) => (
+            <p
+              key={`${scene.label}-${index}-${line.kind}-${line.text}`}
+              className={`${lineKindClass(line.kind)} atlas-terminal-line break-words`}
+            >
+              <span className="text-[var(--atlas-terminal-accent-soft)]">
+                {linePrefix(line.kind)}
+              </span>
+              {line.text}
+            </p>
+          ))}
+
+          {visibleOutputs.length === scene.outputs.length && !showClearTail && (
+            <p className="atlas-terminal-line text-[var(--atlas-terminal-muted)]/90">
+              <span className="text-[var(--atlas-terminal-accent-soft)]">:: </span>
+              {scene.footer}
+            </p>
+          )}
+
+          {showClearTail && (
+            <div className="min-w-0">
+              <p className="min-w-0 atlas-terminal-line">
+                <span className="whitespace-nowrap text-[var(--atlas-terminal-accent-soft)]">
+                  simon@lab
+                </span>{' '}
+                <span className="whitespace-nowrap text-[var(--atlas-terminal-muted)]">
+                  ~/workspace
+                </span>{' '}
+                <span className="whitespace-nowrap text-[var(--atlas-terminal-success)]">
+                  $
+                </span>{' '}
+                <span className="whitespace-pre-wrap break-all [overflow-wrap:anywhere]">
+                  {visibleClearCommand}
+                </span>
+                {shouldShowClearCaret ? (
+                  <span className="atlas-terminal-caret ml-0.5 shrink-0" aria-hidden="true" />
+                ) : null}
+              </p>
+            </div>
+          )}
+        </>
+      )}
     </div>
   )
 }
