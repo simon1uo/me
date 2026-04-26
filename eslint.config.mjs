@@ -3,7 +3,12 @@ import nextTypeScript from 'eslint-config-next/typescript'
 
 const config = [
   {
-    ignores: ['**/.next/**', '.worktrees/**'],
+    ignores: [
+      '**/.next/**',
+      '**/.open-next/**',
+      '**/.wrangler/**',
+      '.worktrees/**',
+    ],
   },
   ...nextCoreWebVitals,
   ...nextTypeScript,

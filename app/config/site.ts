@@ -39,7 +39,10 @@ export const siteConfig: SiteConfig = {
   introEn: 'still keeping hungry and foolish',
   introCn: '持续求知若愚',
   location: 'Guangdong, China',
-  baseUrl: 'https://simon1uo.github.io',
+  baseUrl:
+    process.env.NEXT_PUBLIC_SITE_URL ||
+    process.env.SITE_URL ||
+    'https://simon1uo.github.io',
   emails: {
     primary: 'simon1uo.w@gmail.com',
     secondary: 'simon1uo@163.com',

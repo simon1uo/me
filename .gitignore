@@ -41,3 +41,10 @@ next-env.d.ts
 
 # docs
 superpowers
+
+# OpenNext
+.open-next
+
+# Cloudflare
+.wrangler
+.dev.vars

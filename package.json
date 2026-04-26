@@ -4,7 +4,10 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "cf:build": "opennextjs-cloudflare build",
+    "cf:deploy": "opennextjs-cloudflare deploy",
+    "cf:preview": "opennextjs-cloudflare preview"
   },
   "dependencies": {
     "@tailwindcss/postcss": "^4.1.4",
@@ -26,6 +29,8 @@
   },
   "devDependencies": {
     "eslint": "^9.25.1",
-    "eslint-config-next": "^16.2.4"
+    "eslint-config-next": "^16.2.4",
+    "@opennextjs/cloudflare": "^1.8.0",
+    "wrangler": "^4.84.1"
   }
 }
