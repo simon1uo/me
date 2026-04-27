@@ -135,12 +135,10 @@ select {
   background:
     radial-gradient(70rem 40rem at 20% 12%, color-mix(in srgb, var(--atlas-accent) 18%, transparent), transparent 58%),
     radial-gradient(56rem 36rem at 82% 18%, color-mix(in srgb, var(--atlas-accent) 8%, white 12%), transparent 62%),
-    linear-gradient(
-      180deg,
+    linear-gradient(180deg,
       color-mix(in srgb, var(--atlas-bg) 82%, white 18%) 0%,
       var(--atlas-bg) 56%,
-      color-mix(in srgb, var(--atlas-bg) 90%, black 10%) 100%
-    );
+      color-mix(in srgb, var(--atlas-bg) 90%, black 10%) 100%);
 }
 
 .atlas-bg::before {
@@ -184,7 +182,7 @@ select {
   flex-direction: column;
 }
 
-.atlas-stack > * + * {
+.atlas-stack>*+* {
   margin-top: -1px;
 }
 
@@ -192,7 +190,7 @@ select {
   gap: 0;
 }
 
-.atlas-grid-stack > * {
+.atlas-grid-stack>* {
   margin-top: -1px;
   margin-left: -1px;
 }
@@ -251,11 +249,9 @@ select {
 
 .atlas-lab-shell {
   background:
-    linear-gradient(
-      180deg,
+    linear-gradient(180deg,
       color-mix(in srgb, var(--atlas-surface) 88%, transparent),
-      color-mix(in srgb, var(--atlas-surface-strong) 92%, transparent)
-    );
+      color-mix(in srgb, var(--atlas-surface-strong) 92%, transparent));
   border-color: var(--atlas-border);
   box-shadow:
     0 20px 48px var(--atlas-terminal-shadow),
@@ -280,13 +276,11 @@ select {
 
 .atlas-lab-scanline {
   background:
-    repeating-linear-gradient(
-      180deg,
+    repeating-linear-gradient(180deg,
       var(--atlas-terminal-scanline) 0,
       var(--atlas-terminal-scanline) 1px,
       transparent 1px,
-      transparent 4px
-    );
+      transparent 4px);
   mix-blend-mode: screen;
   opacity: 0.45;
 }
@@ -317,6 +311,8 @@ select {
   flex-direction: column;
   border: 1px solid var(--atlas-terminal-border);
   min-height: 32rem;
+  max-height: clamp(30rem, 70vh, 36rem);
+  overflow: hidden;
   background:
     linear-gradient(180deg, var(--atlas-terminal-window-top), var(--atlas-terminal-window-bottom));
   box-shadow: 0 10px 28px var(--atlas-terminal-shadow);
@@ -347,6 +343,43 @@ select {
   display: flex;
   flex: 1;
   min-height: 0;
+  overflow: hidden;
+}
+
+.atlas-terminal-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--atlas-terminal-accent-soft) 52%, var(--atlas-terminal-border)) color-mix(in srgb, var(--atlas-terminal-window-bottom) 82%, transparent);
+}
+
+.atlas-terminal-scroll::-webkit-scrollbar {
+  width: 10px;
+}
+
+.atlas-terminal-scroll::-webkit-scrollbar-track {
+  border-left: 1px solid color-mix(in srgb, var(--atlas-terminal-border) 62%, transparent);
+  background:
+    linear-gradient(180deg,
+      color-mix(in srgb, var(--atlas-terminal-window-top) 88%, transparent),
+      color-mix(in srgb, var(--atlas-terminal-window-bottom) 92%, transparent));
+}
+
+.atlas-terminal-scroll::-webkit-scrollbar-thumb {
+  border: 2px solid transparent;
+  border-radius: 0;
+  background:
+    linear-gradient(180deg,
+      color-mix(in srgb, var(--atlas-terminal-accent-soft) 68%, white 8%),
+      color-mix(in srgb, var(--atlas-terminal-accent-soft) 46%, var(--atlas-terminal-border) 54%)) padding-box;
+  box-shadow:
+    inset 0 0 0 1px color-mix(in srgb, var(--atlas-terminal-accent-soft) 26%, transparent),
+    0 0 10px color-mix(in srgb, var(--atlas-terminal-led-glow) 48%, transparent);
+}
+
+.atlas-terminal-scroll:hover::-webkit-scrollbar-thumb {
+  background:
+    linear-gradient(180deg,
+      color-mix(in srgb, var(--atlas-terminal-accent-soft) 82%, white 10%),
+      color-mix(in srgb, var(--atlas-terminal-accent-soft) 58%, var(--atlas-terminal-border) 42%)) padding-box;
 }
 
 .atlas-terminal-caret {
@@ -387,6 +420,327 @@ select {
 
 .atlas-terminal-button-muted {
   color: var(--atlas-terminal-muted);
+}
+
+.atlas-insight-card {
+  position: relative;
+  border: 1px solid color-mix(in srgb, var(--atlas-border) 82%, transparent);
+  background:
+    linear-gradient(180deg,
+      color-mix(in srgb, var(--atlas-surface) 78%, transparent),
+      color-mix(in srgb, var(--atlas-surface-strong) 86%, transparent));
+  padding: 0.9rem 0.9rem 0.85rem;
+  height: 18.6rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.atlas-insight-card-activity {
+  padding: 0;
+  overflow: hidden;
+  background:
+    linear-gradient(180deg,
+      color-mix(in srgb, var(--atlas-surface-strong) 92%, transparent),
+      color-mix(in srgb, var(--atlas-surface) 86%, transparent));
+}
+
+.atlas-insight-embedded-label {
+  width: fit-content;
+  border: 1px solid color-mix(in srgb, var(--atlas-border) 78%, transparent);
+  background: color-mix(in srgb, var(--atlas-surface-strong) 88%, transparent);
+  padding: 0.2rem 0.4rem;
+  font-size: 0.58rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--atlas-muted);
+  font-family: var(--font-geist-mono), ui-monospace, monospace;
+}
+
+.atlas-insight-card-location {
+  overflow: hidden;
+  background:
+    linear-gradient(180deg,
+      color-mix(in srgb, var(--atlas-bg) 90%, var(--atlas-accent) 10%),
+      color-mix(in srgb, var(--atlas-surface) 94%, white 6%));
+  transition: background-color 180ms ease;
+}
+
+.atlas-location-map-bg {
+  position: absolute;
+  inset: 0;
+  border: 1px solid color-mix(in srgb, var(--atlas-border) 82%, transparent);
+  background:
+    radial-gradient(88% 70% at 58% 42%,
+      color-mix(in srgb, var(--atlas-accent) 24%, transparent),
+      transparent),
+    linear-gradient(160deg,
+      color-mix(in srgb, var(--atlas-bg) 92%, white 8%),
+      color-mix(in srgb, var(--atlas-surface-strong) 88%, var(--atlas-accent) 12%));
+}
+
+.atlas-location-geo-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  z-index: 1;
+}
+
+.atlas-location-geo-canvas svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+  opacity: 1;
+  transform: scale(1.2) translate(1%, 2%);
+  transform-origin: center;
+}
+
+.atlas-location-geo-province {
+  fill: color-mix(in srgb, var(--atlas-surface) 95%, var(--atlas-accent) 5%);
+  stroke: color-mix(in srgb, var(--atlas-border) 60%, var(--atlas-accent) 40%);
+  stroke-width: 0.62;
+  vector-effect: non-scaling-stroke;
+  fill-rule: evenodd;
+  opacity: 0.85;
+}
+
+.atlas-location-geo-province[data-adcode='440000'] {
+  fill: color-mix(in srgb, var(--atlas-accent) 42%, var(--atlas-surface-strong) 58%);
+  stroke: color-mix(in srgb, var(--atlas-accent) 72%, var(--atlas-border) 28%);
+  opacity: 1;
+}
+
+.atlas-location-geo-province[data-adcode='710000'] {
+  fill: color-mix(in srgb, var(--atlas-accent) 16%, var(--atlas-surface-strong) 84%);
+  stroke: color-mix(in srgb, var(--atlas-accent) 40%, var(--atlas-border) 60%);
+}
+
+.atlas-location-geo-city-lines path {
+  fill: none;
+  stroke: color-mix(in srgb, var(--atlas-accent) 56%, var(--atlas-border) 44%);
+  stroke-width: 0.72;
+  vector-effect: non-scaling-stroke;
+  opacity: 0.98;
+}
+
+.atlas-location-geo-guangdong {
+  fill: color-mix(in srgb, var(--atlas-accent) 58%, var(--atlas-surface-strong) 42%);
+  stroke: color-mix(in srgb, var(--atlas-accent) 92%, var(--atlas-border) 8%);
+  stroke-width: 1.36;
+  vector-effect: non-scaling-stroke;
+  fill-rule: evenodd;
+  filter:
+    drop-shadow(0 0 8px color-mix(in srgb, var(--atlas-accent) 48%, transparent)) drop-shadow(0 0 2px color-mix(in srgb, white 34%, transparent));
+}
+
+.atlas-location-copy {
+  position: relative;
+  z-index: 1;
+  margin-top: auto;
+  width: fit-content;
+  max-width: 92%;
+  border: 1px solid color-mix(in srgb, var(--atlas-accent) 38%, var(--atlas-border) 62%);
+  background: color-mix(in srgb, var(--atlas-bg) 58%, transparent);
+  -webkit-backdrop-filter: blur(8px) saturate(118%);
+  backdrop-filter: blur(8px) saturate(118%);
+  padding: 0.5rem 0.56rem;
+}
+
+.atlas-photo-stage {
+  position: relative;
+  height: 7.6rem;
+  border: 1px solid color-mix(in srgb, var(--atlas-border) 74%, transparent);
+  background: color-mix(in srgb, var(--atlas-surface-strong) 74%, transparent);
+  overflow: hidden;
+}
+
+.atlas-photo-frame {
+  position: absolute;
+  width: 4.8rem;
+  height: 3.2rem;
+  border: 1px solid color-mix(in srgb, var(--atlas-accent) 32%, var(--atlas-border) 68%);
+  background: color-mix(in srgb, var(--atlas-surface) 82%, transparent);
+  box-shadow:
+    inset 0 0 0 1px color-mix(in srgb, var(--atlas-accent) 12%, transparent),
+    0 8px 16px color-mix(in srgb, var(--atlas-shadow) 36%, transparent);
+}
+
+.atlas-photo-frame-1 {
+  left: 18%;
+  top: 16%;
+  transform: rotate(-7deg);
+}
+
+.atlas-photo-frame-2 {
+  left: 38%;
+  top: 14%;
+  transform: rotate(4deg);
+}
+
+.atlas-photo-frame-3 {
+  left: 28%;
+  top: 28%;
+  transform: rotate(-2deg);
+}
+
+.atlas-photo-tag {
+  position: absolute;
+  left: 50%;
+  bottom: 0.65rem;
+  transform: translateX(-50%);
+  font-size: 0.62rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--atlas-muted);
+  font-family: var(--font-geist-mono), ui-monospace, monospace;
+}
+
+.atlas-activity-stage {
+  position: absolute;
+  inset: 0;
+  display: block;
+}
+
+.atlas-activity-grid {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: 0;
+  background:
+    linear-gradient(180deg,
+      color-mix(in srgb, var(--atlas-surface-strong) 88%, transparent),
+      color-mix(in srgb, var(--atlas-surface) 82%, transparent));
+  overflow: hidden;
+}
+
+.atlas-activity-grid::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(180deg,
+      color-mix(in srgb, var(--atlas-bg) 74%, transparent) 0%,
+      color-mix(in srgb, var(--atlas-bg) 24%, transparent) 24%,
+      transparent 46%);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.atlas-activity-week {
+  display: grid;
+  grid-template-rows: repeat(7, minmax(0, 1fr));
+  gap: 0;
+  min-height: 0;
+}
+
+.atlas-activity-meta {
+  position: absolute;
+  right: 0.72rem;
+  bottom: 0.62rem;
+  left: 0.72rem;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding-top: 0.45rem;
+  font-size: 0.58rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--atlas-muted);
+  font-family: var(--font-geist-mono), ui-monospace, monospace;
+  background: linear-gradient(180deg, transparent, color-mix(in srgb, var(--atlas-bg) 26%, transparent));
+}
+
+.atlas-activity-copy {
+  position: absolute;
+  top: 0.82rem;
+  left: 0.82rem;
+  right: 0.82rem;
+  z-index: 2;
+  max-width: 78%;
+}
+
+.atlas-activity-copy .atlas-insight-embedded-label {
+  background: color-mix(in srgb, var(--atlas-bg) 70%, transparent);
+  backdrop-filter: blur(6px);
+}
+
+.atlas-activity-copy p:not(.atlas-insight-embedded-label) {
+  width: fit-content;
+  background: color-mix(in srgb, var(--atlas-bg) 42%, transparent);
+  backdrop-filter: blur(6px);
+  padding-right: 0.18rem;
+}
+
+.atlas-heat-cell {
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+  border-right: 1px solid color-mix(in srgb, var(--atlas-border) 38%, transparent);
+  border-bottom: 1px solid color-mix(in srgb, var(--atlas-border) 38%, transparent);
+  background: color-mix(in srgb, var(--atlas-surface) 40%, transparent);
+}
+
+.atlas-activity-grid[data-status='loading'] .atlas-heat-cell {
+  background:
+    linear-gradient(90deg,
+      color-mix(in srgb, var(--atlas-surface) 52%, transparent),
+      color-mix(in srgb, var(--atlas-accent) 10%, var(--atlas-surface-strong) 90%),
+      color-mix(in srgb, var(--atlas-surface) 52%, transparent));
+  background-size: 240% 100%;
+  animation: atlas-activity-pulse 2.4s linear infinite;
+}
+
+.atlas-heat-cell[data-level='1'] {
+  background: color-mix(in srgb, var(--atlas-accent) 12%, var(--atlas-surface-strong) 88%);
+}
+
+.atlas-heat-cell[data-level='2'] {
+  background: color-mix(in srgb, var(--atlas-accent) 24%, var(--atlas-surface-strong) 76%);
+}
+
+.atlas-heat-cell[data-level='3'] {
+  background: color-mix(in srgb, var(--atlas-accent) 40%, var(--atlas-surface-strong) 60%);
+}
+
+.atlas-heat-cell[data-level='4'] {
+  background: color-mix(in srgb, var(--atlas-accent) 58%, var(--atlas-surface-strong) 42%);
+}
+
+@keyframes atlas-activity-pulse {
+  0% {
+    background-position: 100% 0;
+  }
+
+  100% {
+    background-position: -100% 0;
+  }
+}
+
+@media (max-width: 640px) {
+  .atlas-insight-card {
+    height: 16.9rem;
+    padding: 0.78rem 0.72rem;
+  }
+
+  .atlas-activity-meta {
+    right: 0.58rem;
+    bottom: 0.52rem;
+    left: 0.58rem;
+    font-size: 0.54rem;
+    letter-spacing: 0.1em;
+  }
+
+  .atlas-activity-copy {
+    top: 0.72rem;
+    left: 0.72rem;
+    right: 0.72rem;
+    max-width: 86%;
+  }
 }
 
 .atlas-option {
@@ -438,6 +792,7 @@ select {
   }
 
   @keyframes atlas-terminal-caret-blink {
+
     0%,
     49% {
       opacity: 1;
@@ -462,6 +817,7 @@ select {
   }
 
   @keyframes atlas-terminal-loader-pulse {
+
     0%,
     100% {
       filter: brightness(1);
@@ -475,6 +831,7 @@ select {
   }
 
   @keyframes atlas-lab-led-pulse {
+
     0%,
     100% {
       transform: scale(1);
@@ -494,6 +851,7 @@ select {
 }
 
 @media (prefers-reduced-motion: reduce) {
+
   .atlas-dropdown,
   .atlas-dropdown[data-state='open'] {
     transition: none;
@@ -514,6 +872,7 @@ select {
 @media (max-width: 640px) {
   .atlas-terminal-window {
     min-height: 28rem;
+    max-height: min(32rem, 74vh);
   }
 }
 
@@ -540,7 +899,7 @@ select {
   content: '#';
 }
 
-.prose *:hover > .anchor {
+.prose *:hover>.anchor {
   @apply visible;
 }
 
@@ -609,7 +968,7 @@ select {
   @apply list-decimal pl-6;
 }
 
-.prose > :first-child {
+.prose> :first-child {
   /* Override removing top margin, causing layout shift */
   margin-top: 1.25em !important;
   margin-bottom: 1.25em !important;
@@ -620,8 +979,10 @@ pre::-webkit-scrollbar {
 }
 
 pre {
-  -ms-overflow-style: none; /* IE and Edge */
-  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none;
+  /* IE and Edge */
+  scrollbar-width: none;
+  /* Firefox */
 }
 
 /* Remove Safari input shadow on mobile */

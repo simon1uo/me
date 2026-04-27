@@ -24,6 +24,13 @@ type SiteConfig = {
   stackGroups: StackGroup[]
   notesPanel: string[]
   stackSnapshot: string[]
+  homeInsights: {
+    githubRepo: {
+      owner: string
+      repo: string
+    }
+    locationMetaLine: string
+  }
   seo: {
     defaultTitle: string
     titleTemplate: string
@@ -76,6 +83,13 @@ export const siteConfig: SiteConfig = {
     'Node.js / Java with Spring Boot',
     'Vite + Tailwind CSS + AI Agent Tooling',
   ],
+  homeInsights: {
+    githubRepo: {
+      owner: 'simon1uo',
+      repo: 'simon1uo',
+    },
+    locationMetaLine: 'GMT+8 • Available for Remote',
+  },
   seo: {
     defaultTitle: 'Simon Luo | simon1uo.me',
     titleTemplate: '%s | Simon Luo',
