@@ -191,24 +191,6 @@ function readingHoldForScene(scene: TerminalScene) {
   return Math.max(3200, Math.min(6200, hold))
 }
 
-function useReducedMotionPreference() {
-  const [prefersReducedMotion, setPrefersReducedMotion] = useState(false)
-
-  useEffect(() => {
-    const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)')
-    const updatePreference = () => setPrefersReducedMotion(mediaQuery.matches)
-
-    updatePreference()
-    mediaQuery.addEventListener('change', updatePreference)
-
-    return () => {
-      mediaQuery.removeEventListener('change', updatePreference)
-    }
-  }, [])
-
-  return prefersReducedMotion
-}
-
 function formatStack(items: string[]) {
   return items.length ? items.join(' · ') : 'TypeScript · React · Node.js'
 }
@@ -517,7 +499,6 @@ export function HomeLabTerminal(props: HomeLabTerminalProps) {
   const [sceneIndex, setSceneIndex] = useState(0)
   const [cycle, setCycle] = useState(0)
   const scenes = useMemo(() => buildScenes(props, cycle), [props, cycle])
-  const prefersReducedMotion = useReducedMotionPreference()
 
   const locale = props.copyLocale || 'en'
   const copy = copyByLocale[locale]
@@ -546,10 +527,6 @@ export function HomeLabTerminal(props: HomeLabTerminalProps) {
   }, [cycle, sceneIndex, currentScene.label])
 
   useEffect(() => {
-    if (prefersReducedMotion) {
-      return
-    }
-
     const timeoutId = window.setTimeout(() => {
       setSceneIndex((current) => {
         const next = (current + 1) % scenes.length
@@ -565,7 +542,7 @@ export function HomeLabTerminal(props: HomeLabTerminalProps) {
     return () => {
       window.clearTimeout(timeoutId)
     }
-  }, [currentSceneDuration, prefersReducedMotion, sceneIndex, scenes.length])
+  }, [currentSceneDuration, sceneIndex, scenes.length])
 
   return (
     <section className="atlas-lab-shell atlas-panel relative overflow-hidden">
@@ -593,7 +570,6 @@ export function HomeLabTerminal(props: HomeLabTerminalProps) {
             <TerminalPlayback
               key={`${sceneIndex}-${currentScene.label}-${currentScene.command}-${cycle}-${locale}`}
               scene={currentScene}
-              prefersReducedMotion={prefersReducedMotion}
               loadingWords={copy.loadingWords}
             />
           </div>
@@ -628,11 +604,9 @@ export function HomeLabTerminal(props: HomeLabTerminalProps) {
 
 function TerminalPlayback({
   scene,
-  prefersReducedMotion,
   loadingWords,
 }: {
   scene: TerminalScene
-  prefersReducedMotion: boolean
   loadingWords: string[]
 }) {
   const viewportRef = useRef<HTMLDivElement | null>(null)
@@ -646,26 +620,16 @@ function TerminalPlayback({
   const [spinnerFrameIndex, setSpinnerFrameIndex] = useState(0)
   const postOutputHoldMs = useMemo(() => readingHoldForScene(scene), [scene])
 
-  const visibleCommand = prefersReducedMotion
-    ? scene.command
-    : scene.command.slice(0, typedLength)
+  const visibleCommand = scene.command.slice(0, typedLength)
   const visibleClearCommand = clearCommand.slice(0, clearTypedLength)
-  const visibleOutputs = prefersReducedMotion
-    ? scene.outputs
-    : scene.outputs.slice(0, showOutputs)
+  const visibleOutputs = scene.outputs.slice(0, showOutputs)
   const shouldShowLoading = Boolean(loadingWord)
   const spinnerGlyph = spinnerFrames[spinnerFrameIndex % spinnerFrames.length]
-  const shouldShowPromptCaret =
-    !prefersReducedMotion && typedLength < scene.command.length
-  const shouldShowClearCaret =
-    !prefersReducedMotion && showClearTail && clearTypedLength < clearCommand.length
+  const shouldShowPromptCaret = typedLength < scene.command.length
+  const shouldShowClearCaret = showClearTail && clearTypedLength < clearCommand.length
   const primaryPromptText = isContentCleared ? '' : visibleCommand
 
   useEffect(() => {
-    if (prefersReducedMotion) {
-      return
-    }
-
     let cancelled = false
     const timeoutIds: number[] = []
 
@@ -759,7 +723,7 @@ function TerminalPlayback({
       cancelled = true
       timeoutIds.forEach((timeoutId) => window.clearTimeout(timeoutId))
     }
-  }, [loadingWords, postOutputHoldMs, prefersReducedMotion, scene])
+  }, [loadingWords, postOutputHoldMs, scene])
 
   useEffect(() => {
     const viewport = viewportRef.current

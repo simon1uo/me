@@ -858,7 +858,6 @@ select {
     transform: none;
   }
 
-  .atlas-terminal-line,
   .atlas-terminal-loader,
   .atlas-terminal-caret,
   .atlas-lab-led-live,
