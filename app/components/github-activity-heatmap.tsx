@@ -7,8 +7,8 @@ import {
   buildCommitHeatmap,
   buildFallbackContributionDays,
   type ContributionDay,
-  HEATMAP_DAYS,
-} from 'app/components/github-activity-heatmap-utils'
+  toRecentContributionDays,
+} from 'app/utils/heatmap'
 
 type GitHubActivityHeatmapProps = {
   username: string | null
@@ -19,24 +19,23 @@ type ContributionsApiResponse = {
   contributions?: ContributionDay[]
 }
 
-function toRecentContributionDays(days: ContributionDay[]) {
-  return days.slice(-HEATMAP_DAYS)
-}
-
 export function GitHubActivityHeatmap({ username, fallbackWeeks }: GitHubActivityHeatmapProps) {
   const [weeks, setWeeks] = useState(fallbackWeeks)
   const [status, setStatus] = useState<'loading' | 'ready' | 'fallback'>(username ? 'loading' : 'fallback')
 
   useEffect(() => {
-    if (!username) {
+    const safeUsername = username
+
+    if (typeof safeUsername !== 'string' || !safeUsername) {
       return
     }
+    const encodedUsername = encodeURIComponent(safeUsername)
 
     let cancelled = false
 
     async function loadContributions() {
       try {
-        const response = await fetch(`https://github-contributions-api.jogruber.de/v4/${username}`)
+        const response = await fetch(`/api/github/contributions?username=${encodedUsername}`)
 
         if (!response.ok) {
           throw new Error(`Request failed with ${response.status}`)

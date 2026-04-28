@@ -7,7 +7,6 @@ export type CommitDayCell = {
 export type ContributionDay = {
   date: string
   count: number
-  level?: number
 }
 
 export const HEATMAP_DAYS = 84
@@ -57,6 +56,10 @@ export function buildFallbackContributionDays() {
   }
 
   return days
+}
+
+export function toRecentContributionDays(days: ContributionDay[]) {
+  return days.slice(-HEATMAP_DAYS)
 }
 
 export function buildCommitHeatmap(contributionDays: ContributionDay[]) {

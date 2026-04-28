@@ -4,7 +4,7 @@ import {
   buildCommitHeatmap,
   buildFallbackContributionDays,
   parseGitHubUsername,
-} from 'app/components/github-activity-heatmap-utils'
+} from 'app/utils/heatmap'
 import { readFile } from 'node:fs/promises'
 import { join } from 'node:path'
 import { cache } from 'react'
