@@ -496,6 +496,56 @@ select {
   transform-origin: center;
 }
 
+.atlas-location-geo-canvas-loading,
+.atlas-location-geo-canvas-fallback {
+  opacity: 1;
+  transform: none;
+}
+
+.atlas-location-geo-canvas-loading::after,
+.atlas-location-geo-canvas-fallback::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(140deg,
+      transparent 18%,
+      color-mix(in srgb, var(--atlas-accent) 10%, transparent) 42%,
+      transparent 66%);
+  opacity: 0.7;
+}
+
+.atlas-location-geo-skeleton {
+  position: absolute;
+  border: 1px solid color-mix(in srgb, var(--atlas-border) 68%, transparent);
+  background: color-mix(in srgb, var(--atlas-surface-strong) 86%, transparent);
+  opacity: 0.78;
+}
+
+.atlas-location-geo-skeleton-main {
+  inset: 16% 14% 14% 12%;
+  clip-path: polygon(4% 26%, 22% 12%, 42% 17%, 56% 8%, 80% 16%, 91% 31%, 88% 52%, 95% 71%, 78% 84%, 56% 76%, 38% 88%, 20% 78%, 9% 60%, 5% 40%);
+  filter: drop-shadow(0 0 18px color-mix(in srgb, var(--atlas-accent) 12%, transparent));
+}
+
+.atlas-location-geo-skeleton-highlight {
+  inset: 44% 35% 18% 56%;
+  background: color-mix(in srgb, var(--atlas-accent) 40%, var(--atlas-surface-strong) 60%);
+  border-color: color-mix(in srgb, var(--atlas-accent) 76%, var(--atlas-border) 24%);
+  clip-path: polygon(14% 12%, 56% 4%, 88% 20%, 92% 54%, 78% 90%, 38% 96%, 10% 70%, 6% 34%);
+  opacity: 0.98;
+}
+
+.atlas-location-geo-skeleton-grid {
+  inset: 11% 9% 9% 8%;
+  border: 0;
+  background:
+    linear-gradient(to right, color-mix(in srgb, var(--atlas-grid) 78%, transparent) 1px, transparent 1px),
+    linear-gradient(to bottom, color-mix(in srgb, var(--atlas-grid) 78%, transparent) 1px, transparent 1px);
+  background-size: 34px 34px;
+  opacity: 0.28;
+}
+
 .atlas-location-geo-province {
   fill: color-mix(in srgb, var(--atlas-surface) 95%, var(--atlas-accent) 5%);
   stroke: color-mix(in srgb, var(--atlas-border) 60%, var(--atlas-accent) 40%);
