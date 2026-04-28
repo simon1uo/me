@@ -5,6 +5,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint .",
+    "test": "vitest run",
     "cf:build": "opennextjs-cloudflare build",
     "cf:deploy": "opennextjs-cloudflare deploy",
     "cf:preview": "opennextjs-cloudflare preview"
@@ -30,7 +31,12 @@
   "devDependencies": {
     "eslint": "^9.25.1",
     "eslint-config-next": "^16.2.4",
+    "@testing-library/jest-dom": "^6.6.3",
+    "@testing-library/react": "^16.3.0",
+    "@testing-library/user-event": "^14.6.1",
     "@opennextjs/cloudflare": "^1.8.0",
+    "jsdom": "^26.1.0",
+    "vitest": "^3.2.4",
     "wrangler": "^4.84.1"
   }
 }
