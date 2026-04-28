@@ -496,23 +496,16 @@ select {
   transform-origin: center;
 }
 
+.atlas-location-geo-overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
 .atlas-location-geo-canvas-loading,
 .atlas-location-geo-canvas-fallback {
   opacity: 1;
   transform: none;
-}
-
-.atlas-location-geo-canvas-loading::after,
-.atlas-location-geo-canvas-fallback::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background:
-    linear-gradient(140deg,
-      transparent 18%,
-      color-mix(in srgb, var(--atlas-accent) 10%, transparent) 42%,
-      transparent 66%);
-  opacity: 0.7;
 }
 
 .atlas-location-geo-skeleton {
@@ -522,18 +515,13 @@ select {
   opacity: 0.78;
 }
 
-.atlas-location-geo-skeleton-main {
-  inset: 16% 14% 14% 12%;
-  clip-path: polygon(4% 26%, 22% 12%, 42% 17%, 56% 8%, 80% 16%, 91% 31%, 88% 52%, 95% 71%, 78% 84%, 56% 76%, 38% 88%, 20% 78%, 9% 60%, 5% 40%);
-  filter: drop-shadow(0 0 18px color-mix(in srgb, var(--atlas-accent) 12%, transparent));
-}
-
 .atlas-location-geo-skeleton-highlight {
   inset: 44% 35% 18% 56%;
   background: color-mix(in srgb, var(--atlas-accent) 40%, var(--atlas-surface-strong) 60%);
   border-color: color-mix(in srgb, var(--atlas-accent) 76%, var(--atlas-border) 24%);
   clip-path: polygon(14% 12%, 56% 4%, 88% 20%, 92% 54%, 78% 90%, 38% 96%, 10% 70%, 6% 34%);
   opacity: 0.98;
+  animation: atlas-location-highlight-pulse 2.8s ease-in-out infinite;
 }
 
 .atlas-location-geo-skeleton-grid {
@@ -544,6 +532,68 @@ select {
     linear-gradient(to bottom, color-mix(in srgb, var(--atlas-grid) 78%, transparent) 1px, transparent 1px);
   background-size: 34px 34px;
   opacity: 0.28;
+  mask-image: radial-gradient(circle at center, black 56%, transparent 94%);
+}
+
+.atlas-location-geo-skeleton-pulse {
+  inset: 30% 22% 12% 48%;
+  border: 0;
+  background: radial-gradient(circle, color-mix(in srgb, var(--atlas-accent) 24%, transparent) 0%, transparent 68%);
+  opacity: 0.72;
+  filter: blur(14px);
+  animation: atlas-location-pulse-ring 2.9s ease-out infinite;
+}
+
+.atlas-location-geo-skeleton-highlight-fallback {
+  animation: none;
+}
+
+.atlas-location-geo-overlay-fallback .atlas-location-geo-skeleton-grid {
+  opacity: 0.18;
+}
+
+.atlas-location-geo-canvas-ready svg {
+  transition:
+    transform 520ms ease,
+    filter 520ms ease,
+    opacity 320ms ease;
+}
+
+.atlas-location-geo-canvas-ready[data-hovered='true'] svg {
+  transform: scale(1.225) translate(0.9%, 1.7%);
+  filter: saturate(1.06);
+}
+
+.atlas-location-geo-overlay-ready {
+  overflow: hidden;
+}
+
+.atlas-location-geo-hover-glow {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+}
+
+.atlas-location-geo-hover-glow {
+  background:
+    radial-gradient(34% 28% at 67% 66%, color-mix(in srgb, var(--atlas-accent) 18%, transparent), transparent 72%),
+    radial-gradient(72% 58% at 50% 44%, color-mix(in srgb, var(--atlas-accent) 8%, transparent), transparent 82%);
+  transition: opacity 260ms ease;
+}
+
+.atlas-location-geo-canvas-ready[data-hovered='true'] .atlas-location-geo-hover-glow {
+  opacity: 1;
+  filter: saturate(1.08);
+}
+
+.atlas-location-geo-province,
+.atlas-location-geo-city-lines path,
+.atlas-location-geo-guangdong {
+  transition:
+    opacity 240ms ease,
+    stroke 240ms ease,
+    fill 240ms ease,
+    filter 280ms ease;
 }
 
 .atlas-location-geo-province {
@@ -582,6 +632,69 @@ select {
   fill-rule: evenodd;
   filter:
     drop-shadow(0 0 8px color-mix(in srgb, var(--atlas-accent) 48%, transparent)) drop-shadow(0 0 2px color-mix(in srgb, white 34%, transparent));
+}
+
+.atlas-location-geo-canvas-ready[data-hovered='true'] .atlas-location-geo-province {
+  stroke: color-mix(in srgb, var(--atlas-accent) 52%, var(--atlas-border) 48%);
+  opacity: 0.92;
+}
+
+.atlas-location-geo-canvas-ready[data-hovered='true'] .atlas-location-geo-city-lines path {
+  stroke: color-mix(in srgb, var(--atlas-accent) 72%, var(--atlas-border) 28%);
+  opacity: 1;
+}
+
+.atlas-location-geo-canvas-ready[data-hovered='true'] .atlas-location-geo-guangdong {
+  stroke: color-mix(in srgb, white 12%, var(--atlas-accent) 88%);
+  filter:
+    drop-shadow(0 0 12px color-mix(in srgb, var(--atlas-accent) 58%, transparent))
+    drop-shadow(0 0 4px color-mix(in srgb, white 40%, transparent));
+}
+
+@keyframes atlas-location-highlight-pulse {
+  0%,
+  100% {
+    opacity: 0.76;
+    transform: scale(0.985);
+  }
+
+  50% {
+    opacity: 1;
+    transform: scale(1.02);
+  }
+}
+
+@keyframes atlas-location-pulse-ring {
+  0% {
+    opacity: 0.12;
+    transform: scale(0.76);
+  }
+
+  30% {
+    opacity: 0.34;
+  }
+
+  100% {
+    opacity: 0;
+    transform: scale(1.34);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .atlas-location-geo-skeleton-highlight,
+  .atlas-location-geo-skeleton-pulse {
+    animation: none;
+  }
+
+  .atlas-location-geo-canvas-ready[data-hovered='true'] svg {
+    transform: scale(1.2) translate(1%, 2%);
+    filter: none;
+  }
+
+  .atlas-location-geo-hover-glow,
+  .atlas-insight-card-location:hover .atlas-location-geo-hover-glow {
+    opacity: 0;
+  }
 }
 
 .atlas-location-copy {

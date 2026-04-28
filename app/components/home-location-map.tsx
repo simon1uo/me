@@ -158,8 +158,21 @@ function buildMapState(chinaPayload: GeoJsonFeatureCollection, guangdongPayload:
   }
 }
 
+function HomeLocationMapLoading() {
+  return (
+    <div className="atlas-location-geo-canvas atlas-location-geo-canvas-loading" aria-hidden="true">
+      <div className="atlas-location-geo-overlay atlas-location-geo-overlay-loading">
+        <div className="atlas-location-geo-skeleton atlas-location-geo-skeleton-grid" />
+        <div className="atlas-location-geo-skeleton atlas-location-geo-skeleton-highlight" />
+        <div className="atlas-location-geo-skeleton atlas-location-geo-skeleton-pulse" />
+      </div>
+    </div>
+  )
+}
+
 export function HomeLocationMap() {
   const [mapState, setMapState] = useState<MapState | null>(null)
+  const [isHovered, setIsHovered] = useState(false)
 
   useEffect(() => {
     let cancelled = false
@@ -202,21 +215,31 @@ export function HomeLocationMap() {
   }, [])
 
   if (!mapState) {
+    return <HomeLocationMapLoading />
+  }
+
+  if (!mapState.provinces.length || !mapState.guangdongPath) {
     return (
-      <div className="atlas-location-geo-canvas atlas-location-geo-canvas-loading" aria-hidden="true">
-        <div className="atlas-location-geo-skeleton atlas-location-geo-skeleton-main" />
-        <div className="atlas-location-geo-skeleton atlas-location-geo-skeleton-highlight" />
-        <div className="atlas-location-geo-skeleton atlas-location-geo-skeleton-grid" />
+      <div className="atlas-location-geo-canvas atlas-location-geo-canvas-fallback" aria-hidden="true">
+        <div className="atlas-location-geo-overlay atlas-location-geo-overlay-fallback">
+          <div className="atlas-location-geo-skeleton atlas-location-geo-skeleton-grid" />
+          <div className="atlas-location-geo-skeleton atlas-location-geo-skeleton-highlight atlas-location-geo-skeleton-highlight-fallback" />
+        </div>
       </div>
     )
   }
 
-  if (!mapState.provinces.length || !mapState.guangdongPath) {
-    return <div className="atlas-location-geo-canvas atlas-location-geo-canvas-fallback" aria-hidden="true" />
-  }
-
   return (
-    <div className="atlas-location-geo-canvas">
+    <div
+      className="atlas-location-geo-canvas atlas-location-geo-canvas-ready"
+      data-hovered={isHovered ? 'true' : 'false'}
+      onPointerEnter={() => {
+        setIsHovered(true)
+      }}
+      onPointerLeave={() => {
+        setIsHovered(false)
+      }}
+    >
       <svg
         viewBox="0 0 1200 740"
         preserveAspectRatio="xMidYMid meet"
@@ -244,6 +267,9 @@ export function HomeLocationMap() {
           ))}
         </g>
       </svg>
+      <div className="atlas-location-geo-overlay atlas-location-geo-overlay-ready" aria-hidden="true">
+        <div className="atlas-location-geo-hover-glow" />
+      </div>
     </div>
   )
 }
