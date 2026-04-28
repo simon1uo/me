@@ -85,12 +85,12 @@ const driverTemplates = ['simondex', 'simonaude'] as const
 const copyByLocale: Record<CopyLocale, LocaleCopy> = {
   en: {
     promptRequests: [
-      'Help me introduce this person in a concise and friendly way.',
-      'Help me summarize what this person has been working on recently.',
-      "Help me describe this person's frontend and backend tech stack.",
-      "Help me describe this person's toolchain and engineering workflow.",
-      "Help me summarize this person's core skills with concrete proof.",
-      'Help me summarize how to collaborate with this person effectively.',
+      'Introduce this person in a concise and friendly way.',
+      'Summarize what this person has been working on recently.',
+      "Describe this person's frontend and backend tech stack.",
+      "Describe this person's toolchain and engineering workflow.",
+      "Summarize this person's core skills with concrete proof.",
+      'Summarize how to collaborate with this person effectively.',
     ],
     loadingWords: [
       'Aligning',
@@ -129,12 +129,12 @@ const copyByLocale: Record<CopyLocale, LocaleCopy> = {
   },
   zh: {
     promptRequests: [
-      '帮我用简洁自然的方式介绍这个人。',
-      '帮我总结这个人最近在干什么。',
-      '帮我描述这个人的前后端技术栈。',
-      '帮我描述这个人的工具链和工程流程。',
-      '帮我总结这个人的核心技能并给出证据。',
-      '帮我总结如何高效地与这个人协作。',
+      '用简洁自然的方式介绍这个人。',
+      '总结这个人最近在忙什么。',
+      '描述这个人的前后端技术栈。',
+      '描述这个人的工具链和工程流程。',
+      '总结这个人的核心技能，并给出具体证据。',
+      '总结如何高效地与这个人协作。',
     ],
     loadingWords: ['对齐中', '编排中', '校验中', '整合中', '同步中', '构建中', '检查中', '路由中'],
     sceneLabels: ['个人介绍', '工作重心', '技术栈', '工具链', '技能证明', '协作信息'],
