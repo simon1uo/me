@@ -41,6 +41,8 @@ next-env.d.ts
 
 # docs
 superpowers
+!docs/superpowers/
+!docs/superpowers/**
 
 # OpenNext
 .open-next
