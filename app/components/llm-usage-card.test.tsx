@@ -32,6 +32,18 @@ describe('LlmUsageCard', () => {
             totalTokens: 122334776,
             share: 0.596,
           },
+          {
+            model: 'gpt-4.1',
+            totalRequests: 461,
+            totalTokens: 44800000,
+            share: 0.256,
+          },
+          {
+            model: 'gpt-4.1-mini',
+            totalRequests: 265,
+            totalTokens: 25300000,
+            share: 0.147,
+          },
         ],
         timeline: [
           { hour: '2026-04-27T13:00:00+08:00', totalTokens: 1000 },
@@ -44,8 +56,10 @@ describe('LlmUsageCard', () => {
 
     await waitFor(() => expect(screen.getByText('1,797')).toBeInTheDocument())
     expect(screen.getByText('192.4M')).toBeInTheDocument()
-    expect(screen.getByText(/Live last 24h usage/)).toBeInTheDocument()
+    expect(screen.getByText('24h • 22 failed')).toBeInTheDocument()
     expect(screen.getByText(/gpt-5.3-codex/)).toBeInTheDocument()
+    expect(screen.getByText(/gpt-4.1/)).toBeInTheDocument()
+    expect(screen.queryByText(/gpt-4.1-mini/)).not.toBeInTheDocument()
   })
 
   it('renders fallback copy when the route request fails', async () => {
@@ -53,8 +67,9 @@ describe('LlmUsageCard', () => {
 
     render(<LlmUsageCard />)
 
-    await waitFor(() => expect(screen.getByText('Usage unavailable')).toBeInTheDocument())
+    await waitFor(() => expect(screen.getByText('Unavailable')).toBeInTheDocument())
     expect(screen.getAllByText('—').length).toBeGreaterThan(0)
+    expect(screen.getByText('Metrics unavailable')).toBeInTheDocument()
   })
 
   it('renders empty-state copy when there is no model activity', async () => {
@@ -74,8 +89,7 @@ describe('LlmUsageCard', () => {
 
     render(<LlmUsageCard />)
 
-    await waitFor(() =>
-      expect(screen.getByText('No model activity in the last 24 hours')).toBeInTheDocument()
-    )
+    await waitFor(() => expect(screen.getByText('No activity')).toBeInTheDocument())
+    expect(screen.getByText('No model activity')).toBeInTheDocument()
   })
 })

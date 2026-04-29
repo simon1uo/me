@@ -52,18 +52,18 @@ function buildFallbackState(): UsageCardSnapshot {
 
 function getStatusText(snapshot: UsageCardSnapshot | null) {
   if (!snapshot || snapshot.status === 'fallback') {
-    return 'Usage unavailable'
+    return 'Unavailable'
   }
 
   if (snapshot.status === 'empty') {
-    return 'No model activity in the last 24 hours'
+    return 'No activity'
   }
 
   if (snapshot.failedRequests > 0) {
-    return `Live last 24h usage • ${formatRequestCount(snapshot.failedRequests)} failed`
+    return `24h • ${formatRequestCount(snapshot.failedRequests)} failed`
   }
 
-  return 'Live last 24h usage'
+  return 'Live 24h'
 }
 
 function getTrendValues(timeline: UsageTimelinePoint[]) {
@@ -71,7 +71,7 @@ function getTrendValues(timeline: UsageTimelinePoint[]) {
 }
 
 function getTopModels(models: UsageModelSummary[]) {
-  return models.slice(0, 3)
+  return models.slice(0, 2)
 }
 
 export function LlmUsageCard() {
@@ -113,68 +113,86 @@ export function LlmUsageCard() {
 
   return (
     <article className="atlas-insight-card">
-      <p className="atlas-insight-embedded-label">LLM Usage</p>
-      <p className="mt-2 font-mono text-sm uppercase tracking-[0.08em] text-[var(--atlas-text)]">
-        Requests • Tokens • Models
-      </p>
-      <p className="mt-2 text-xs text-[var(--atlas-muted)]">{getStatusText(snapshot)}</p>
-
-      <div className="mt-4 grid grid-cols-2 gap-2">
-        <div className="border border-[color-mix(in_srgb,var(--atlas-border)_74%,transparent)] bg-[color-mix(in_srgb,var(--atlas-surface-strong)_72%,transparent)] px-3 py-3">
-          <p className="text-[0.62rem] uppercase tracking-[0.12em] text-[var(--atlas-muted)]">Total Requests</p>
-          <p className="mt-2 font-mono text-xl text-[var(--atlas-text)]">
-            {isFallback ? '—' : formatRequestCount(snapshot.totalRequests)}
-          </p>
+      <div
+        className="pointer-events-none absolute inset-0 overflow-hidden"
+        aria-hidden="true"
+      >
+        <div className="absolute inset-x-[-8%] top-[-18%] bottom-[28%] opacity-80">
+          <svg viewBox="0 0 320 160" className="h-full w-full">
+            {trendPoints ? (
+              <>
+                <polyline
+                  fill="none"
+                  stroke="color-mix(in srgb, var(--atlas-accent) 16%, transparent)"
+                  strokeWidth="10"
+                  points={trendPoints}
+                  vectorEffect="non-scaling-stroke"
+                  transform="scale(1.3 1.65) translate(-18 -34)"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+                <polyline
+                  fill="none"
+                  stroke="color-mix(in srgb, var(--atlas-accent) 44%, transparent)"
+                  strokeWidth="2.4"
+                  points={trendPoints}
+                  vectorEffect="non-scaling-stroke"
+                  transform="scale(1.3 1.65) translate(-18 -34)"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </>
+            ) : null}
+          </svg>
         </div>
-
-        <div className="border border-[color-mix(in_srgb,var(--atlas-border)_74%,transparent)] bg-[color-mix(in_srgb,var(--atlas-surface-strong)_72%,transparent)] px-3 py-3">
-          <p className="text-[0.62rem] uppercase tracking-[0.12em] text-[var(--atlas-muted)]">Total Tokens</p>
-          <p className="mt-2 font-mono text-xl text-[var(--atlas-text)]">
-            {isFallback ? '—' : formatCompactNumber(snapshot.totalTokens)}
-          </p>
-        </div>
+        <div className="absolute inset-x-0 bottom-0 h-[56%] bg-[linear-gradient(180deg,transparent_0%,color-mix(in_srgb,var(--atlas-surface)_50%,transparent)_34%,color-mix(in_srgb,var(--atlas-surface-strong)_88%,transparent)_100%)]" />
       </div>
 
-      <svg
-        viewBox="0 0 240 86"
-        className="mt-4 h-[86px] w-full border border-[color-mix(in_srgb,var(--atlas-border)_74%,transparent)] bg-[color-mix(in_srgb,var(--atlas-surface-strong)_72%,transparent)]"
-        role="img"
-        aria-label="LLM token trend chart"
-      >
-        {trendPoints ? (
-          <polyline
-            fill="none"
-            stroke="var(--atlas-accent)"
-            strokeWidth="1.6"
-            points={trendPoints}
-            vectorEffect="non-scaling-stroke"
-          />
-        ) : null}
-      </svg>
+      <div className="relative z-10">
+        <p className="atlas-insight-embedded-label">LLM Usage</p>
+        <p className="mt-2 font-mono text-sm uppercase tracking-[0.08em] text-[var(--atlas-text)]">
+          Usage Snapshot
+        </p>
+        <p className="mt-2 text-xs text-[var(--atlas-muted)]">{getStatusText(snapshot)}</p>
 
-      <div className="mt-4 space-y-2">
-        {topModels.length ? (
-          topModels.map((item) => (
-            <div key={item.model} className="space-y-1">
-              <div className="flex items-center justify-between gap-3 text-[0.68rem] uppercase tracking-[0.1em] text-[var(--atlas-muted)]">
-                <span className="truncate">{item.model}</span>
-                <span className="shrink-0">
-                  {formatRequestCount(item.totalRequests)} req • {formatCompactNumber(item.totalTokens)}
-                </span>
+        <div className="mt-3 grid grid-cols-2 gap-1.5">
+          <div className="border border-[color-mix(in_srgb,var(--atlas-border)_74%,transparent)] bg-[color-mix(in_srgb,var(--atlas-surface-strong)_72%,transparent)] px-2.5 py-2">
+            <p className="text-[0.62rem] uppercase tracking-[0.1em] text-[var(--atlas-muted)]">Requests</p>
+            <p className="mt-1 font-mono text-[1.05rem] leading-none text-[var(--atlas-text)]">
+              {isFallback ? '—' : formatRequestCount(snapshot.totalRequests)}
+            </p>
+          </div>
+
+          <div className="border border-[color-mix(in_srgb,var(--atlas-border)_74%,transparent)] bg-[color-mix(in_srgb,var(--atlas-surface-strong)_72%,transparent)] px-2.5 py-2">
+            <p className="text-[0.62rem] uppercase tracking-[0.1em] text-[var(--atlas-muted)]">Tokens</p>
+            <p className="mt-1 font-mono text-[1.05rem] leading-none text-[var(--atlas-text)]">
+              {isFallback ? '—' : formatCompactNumber(snapshot.totalTokens)}
+            </p>
+          </div>
+        </div>
+
+        <div className="mt-4 space-y-1.5">
+          {topModels.length ? (
+            topModels.map((item) => (
+              <div key={item.model} className="space-y-1">
+                <div className="flex items-center justify-between gap-2 text-[0.62rem] uppercase tracking-[0.08em] text-[var(--atlas-muted)]">
+                  <span className="truncate">{item.model}</span>
+                  <span className="shrink-0">{formatCompactNumber(item.totalTokens)}</span>
+                </div>
+                <div className="h-1.5 border border-[color-mix(in_srgb,var(--atlas-border)_74%,transparent)] bg-transparent">
+                  <div
+                    className="h-full bg-[color-mix(in_srgb,var(--atlas-accent)_46%,transparent)]"
+                    style={{ width: `${Math.max(item.share * 100, 6)}%` }}
+                  />
+                </div>
               </div>
-              <div className="h-1.5 border border-[color-mix(in_srgb,var(--atlas-border)_74%,transparent)] bg-transparent">
-                <div
-                  className="h-full bg-[color-mix(in_srgb,var(--atlas-accent)_46%,transparent)]"
-                  style={{ width: `${Math.max(item.share * 100, 6)}%` }}
-                />
-              </div>
-            </div>
-          ))
-        ) : (
-          <p className="text-xs text-[var(--atlas-muted)]">
-            {isFallback ? 'Live usage metrics are temporarily unavailable.' : 'No model activity to display.'}
-          </p>
-        )}
+            ))
+          ) : (
+            <p className="text-[0.7rem] text-[var(--atlas-muted)]">
+              {isFallback ? 'Metrics unavailable' : 'No model activity'}
+            </p>
+          )}
+        </div>
       </div>
     </article>
   )
